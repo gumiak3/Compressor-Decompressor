@@ -2,15 +2,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+int compare_by_word(const void *a, const void *b){
+    return (*(char*)a - *(char*)b);
+}
 int contains(probability_t * array, char *word){
     for(int i=0;i<11;i++){
         if(array[i].word)
-            if(strcmp(array[i].word,word) == 0)
-                return 1;
+            if(compare_by_word(array[i].word, word) == 0){
+                return i;
+            }
     }
-    return 0;
+    return -1;
 }
-
+int compare_by_amount(const void* a, const void* b) {
+    const probability_t* p_a = (const probability_t*) a;
+    const probability_t* p_b = (const probability_t*) b;
+    return p_b->amount - p_a->amount;
+}
 probability_t * readBinaryFile(char *fileName, int flag){
     FILE *in = fopen(fileName,"rb");
     unsigned char buffer[flag];
@@ -18,27 +27,22 @@ probability_t * readBinaryFile(char *fileName, int flag){
     int index = 0;
     if(in!=NULL){
         while(fread(buffer,sizeof(unsigned char),flag,in) == flag){
-            if(contains(probability,buffer)){
-                probability[index].amount++;
-            }else{
+            int temp;
+            if((temp = contains(probability,buffer)) >=0){
+                probability[temp].amount++;
+            }else {
                 probability[index].word = malloc(sizeof(char));
                 strcpy(probability[index].word, buffer);
                 probability[index].amount = 1;
+                index++;
             }
-            index++;
         }
     }else{
         printf("Couldn't open the file!\n");
     }
+    qsort(probability,127,sizeof(probability_t),compare_by_amount);
     return probability;
 }
-// get bit by bit
-//    for (int i = 0; i < 1; i++) {
-//        for (int j = 7; j >= 0; j--) {
-//            printf("%d", (probability[i] >> j) & 1);
-//        }
-//        printf(" ");
-//    }
 
 void free_memory(probability_t *array){
     free(array);
