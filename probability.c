@@ -22,17 +22,17 @@ int compare_by_amount(const void* a, const void* b) {
 }
 probability_t * readBinaryFile(char *fileName, int flag){
     FILE *in = fopen(fileName,"rb");
-    unsigned char buffer[flag];
+    unsigned char buffer;
     probability_t *probability = malloc(sizeof(*probability) * 127);
     int index = 0;
     if(in!=NULL){
-        while(fread(buffer,sizeof(unsigned char),flag,in) == flag){
+        while(fread(&buffer,sizeof(unsigned char),2,in) == flag){
             int temp;
-            if((temp = contains(probability,buffer)) >=0){
+            if((temp = contains(probability,&buffer)) >=0){
                 probability[temp].amount++;
             }else {
                 probability[index].word = malloc(sizeof(char));
-                strcpy(probability[index].word, buffer);
+                strcpy(probability[index].word, &buffer);
                 probability[index].amount = 1;
                 index++;
             }
@@ -41,6 +41,7 @@ probability_t * readBinaryFile(char *fileName, int flag){
         printf("Couldn't open the file!\n");
     }
     sortArray(probability);
+    fclose(in);
     return probability;
 }
 

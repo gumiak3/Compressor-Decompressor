@@ -1,7 +1,7 @@
 #ifndef COMPRESSOR_PROBABILITY_H
 #define COMPRESSOR_PROBABILITY_H
 typedef struct{
-    char *word;
+    short word;
     int amount;
 }probability_t;
 
