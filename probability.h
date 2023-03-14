@@ -6,6 +6,6 @@ typedef struct{
 }probability_t;
 
 probability_t  * readBinaryFile(char *fileName, int flag);
-
+void sortArray(probability_t *array);
 
 #endif //COMPRESSOR_PROBABILITY_H

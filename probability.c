@@ -40,8 +40,12 @@ probability_t * readBinaryFile(char *fileName, int flag){
     }else{
         printf("Couldn't open the file!\n");
     }
-    qsort(probability,127,sizeof(probability_t),compare_by_amount);
+    sortArray(probability);
     return probability;
+}
+
+void sortArray(probability_t *array){
+    qsort(array,127,sizeof(probability_t),compare_by_amount);
 }
 
 void free_memory(probability_t *array){
