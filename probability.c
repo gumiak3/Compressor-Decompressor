@@ -31,6 +31,9 @@ int compare_by_amount(const void* a, const void* b) {
     const probability_t* p_b = (const probability_t*) b;
     return p_a->amount - p_b->amount;
 }
+// read data
+// split : 8, 12, 16
+//
 probability_t * readBinaryFile(char *fileName, int flag){
     FILE *in = fopen(fileName,"rb");
     int bitsToRead = flag == 12 ? 2 : flag==16 ? 2 : 1;
@@ -45,9 +48,12 @@ probability_t * readBinaryFile(char *fileName, int flag){
             if((index+1) == length)
                 doubleLength(probability);
             if(flag==12) {
-                if(index==0)
+                if(index==0) {
                     probability[index].bits = buffer[0];
-                if(index%2==0){
+                    temp = (probability[index].bits << 4) | (buffer[0] >> 4);
+                    probability[index+1].bits = (buffer[0] << 4) & mask;
+                    probability[index+1].amount = 1;
+                }else if(index%2==0){
                     temp = (probability[index].bits << 4) | (buffer[1] >> 4);
                     probability[index+1].bits = (buffer[1] << 4) & mask;
                     probability[index+1].amount = 1;
@@ -73,8 +79,7 @@ probability_t * readBinaryFile(char *fileName, int flag){
         printf("Couldn't open the file!\n");
     }
 
-
-   // sortArray(probability);
+//    sortArray(probability);
     fclose(in);
     return probability;
 }
