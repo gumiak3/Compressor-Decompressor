@@ -5,13 +5,13 @@
 int main(int argc, char**argv) {
     int size = 0;
     char *data = readData(argv[1],&size);
-    short rest;
+    char rest;
     short *splittedData = splitData(data,&size,16,&rest);
+    printf("size %d\n", size);
     for(int i=0;i<size;i++){
-        printf("%c ", splittedData[i]>>8);
-        printf("%c\n", splittedData[i]);
+        printf("%c, %c", splittedData[i] >> 8, splittedData[i]);
     }
-    printf("rest: %d",rest);
+    printf(",%c", rest);
     return 0;
 
 }

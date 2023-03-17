@@ -1,24 +1,36 @@
 #include "splitData.h"
 #include <stdlib.h>
-short *splitTo8(char *data, int *size, short *rest){
+short *splitTo8(char *data, int *size, char *rest){
     short *outputData = malloc(sizeof(*outputData) * *size);
     for(int i=0;i<*size;i++){
         outputData[i] = data[i];
     }
     return outputData;
 }
-short *splitTo12(char *data, int *size,int *newSize, short *rest){
+short *splitTo12(char *data, int *size,int *newSize, char *rest){
+    int mask = 0x00FF; // to extract useless 1
     *newSize = ((*size) * 8 )/12;
     short *outputData = malloc(sizeof(*outputData) * *newSize);
     int index = 0;
     short temp;
-    for(int i=0;i<*size;i++){
-
+    int length = (((*size) * 8 )%12) == 0 ? *size : *size-1;
+    for(int i=0;i<length;i++) {
+        if(i%2==0){
+            outputData[index] = data[i];
+            outputData[index] = (outputData[index] << 4) | (data[i+1] >> 4);
+        }else{
+            outputData[index] = (data[i] << 4);
+            outputData[index] = (outputData[index] << 4) | data[i+1];
+        }
+        index++;
     }
-    return NULL;
+    if((((*size) * 8 )%12) != 0){
+        *rest = data[length-1];
+    }
+    return outputData;
 
 }
-short *splitTo16(char *data, int *size, int *newSize, short *rest){
+short *splitTo16(char *data, int *size, int *newSize, char *rest){
     int mask = 0x00FF; // to extract useless 1
     *newSize = ((*size) * 8)/16;
     short *outputData = malloc(sizeof(*outputData) * *newSize);
@@ -34,7 +46,7 @@ short *splitTo16(char *data, int *size, int *newSize, short *rest){
     return outputData;
 }
 
-short *splitData(char *data, int *size,int bitsToRead, short *rest){
+short *splitData(char *data, int *size,int bitsToRead, char *rest){
     short *splittedData;
     int newSize = 0;
     switch(bitsToRead){
@@ -44,13 +56,15 @@ short *splitData(char *data, int *size,int bitsToRead, short *rest){
         }
         case 12:{
             splittedData = splitTo12(data,size,&newSize,rest);
+            *size = newSize;
             break;
         }
         case 16:{
             splittedData = splitTo16(data,size,&newSize,rest);
+            *size = newSize;
             break;
         }
     }
-    *size = newSize;
+
     return splittedData;
 }
