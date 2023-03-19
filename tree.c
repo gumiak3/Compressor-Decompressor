@@ -16,8 +16,12 @@ typedef struct Node {
     bool bylo;
 } Node;
 
-void make_tree(struct Input *tab, int n){
-	Node* leafs = malloc(sizeof(Node)*(n*2));
+typedef struct Output {
+	short symbol;
+	char* code;
+} Output;
+
+void make_tree(struct Input *tab, struct Node *leafs, struct Node *nodes, int n, int *w){
 	for(int i = 0; i < n; i++){
 		leafs[i].symbol = tab[i].symbol;
 		leafs[i].frequency = tab[i].frequency;
@@ -69,7 +73,7 @@ void make_tree(struct Input *tab, int n){
 			}
 		}
 	}
-	Node* nodes = malloc(sizeof(Node)*(n));
+	nodes = realloc(nodes, sizeof(Node)*(n));
 	for(int i = 0; i < n; i++){
 		nodes[i].symbol = leafs[i].symbol;
 		nodes[i].frequency = leafs[i].frequency;
@@ -77,8 +81,29 @@ void make_tree(struct Input *tab, int n){
 		nodes[i].right = leafs[i].right;
 		nodes[i].bylo = leafs[i].bylo;
 	}
-    
-    	for(int i = 0; i < n; i++){
+	*w = n;
+}
+
+int main(void){
+    int n, k;
+    n = 6;
+    struct Input *tab = malloc(sizeof(struct Input)*n);
+    tab[0].symbol = 1011;
+    tab[0].frequency = 1;
+    tab[1].symbol = 1010;
+    tab[1].frequency = 2;
+    tab[2].symbol = 1001;
+    tab[2].frequency = 2;
+    tab[3].symbol = 1100;
+    tab[3].frequency = 4;
+    tab[4].symbol = 1111;
+    tab[4].frequency = 4;
+    tab[5].symbol = 1110;
+    tab[5].frequency = 18;
+    struct Node* leafs = malloc(sizeof(Node)*(n*2));
+	struct Node* nodes = malloc(sizeof(Node)*(n*2));
+	make_tree(tab, leafs, nodes, n, &k);
+    	for(int i = 0; i < k; i++){
 		printf("Node at index %d: \n", i);
 		printf("Symbol:%d ", nodes[i].symbol);
 		printf("frequency:%d ", nodes[i].frequency);
@@ -97,26 +122,8 @@ void make_tree(struct Input *tab, int n){
 		printf("Bylo:%d ", nodes[i].bylo);
 		printf("\n\n");
     	}
-	free(leafs);
+	printf("n = %d \n", n);
+	printf("k = %d \n", k);
+	struct Output* codes = malloc(sizeof(Output)*n);
+	return 0;
 }
-
-
-int main(void){
-    int n;
-    n = 6;
-    struct Input *tab = malloc(sizeof(struct Input)*n);
-    tab[0].symbol = 1011;
-    tab[0].frequency = 1;
-    tab[1].symbol = 1010;
-    tab[1].frequency = 2;
-    tab[2].symbol = 1001;
-    tab[2].frequency = 2;
-    tab[3].symbol = 1100;
-    tab[3].frequency = 4;
-    tab[4].symbol = 1111;
-    tab[4].frequency = 4;
-    tab[5].symbol = 1110;
-    tab[5].frequency = 18;
-	make_tree(tab, n);
-
-};
