@@ -1,0 +1,6 @@
+#ifndef COMPRESSOR_DATAREADER_H
+#define COMPRESSOR_DATAREADER_H
+char * readData(char *, int *);
+
+
+#endif //COMPRESSOR_DATAREADER_H

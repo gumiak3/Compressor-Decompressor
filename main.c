@@ -1,15 +1,26 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "probability.h"
-int main(int argc, char**argv) {
-    probability_t *  probability = readBinaryFile(argv[1], atoi(argv[2]));
-    for(int i=0;i<getSize(probability);i++){
-        if(probability[i].bits){
-            printf("%d \n",probability[i].bits >> 4);
-            printf("%d \n",probability[i].bits );
-        }
+#include "dataReader.h"
+#include "splitData.h"
+#include "frequency.h"
+#include "compress.h"
 
+
+int main(int argc, char**argv) {
+    int size = 0;
+    char *data = readData(argv[1],&size);
+    char rest;
+    short *splittedData = splitData(data,&size,8,&rest);
+    int dataSize = size;
+    frequency_t * freqArray = getFrequency(splittedData,&size);
+    codes_t * codes = malloc(sizeof(*codes)*size);
+    for(int i=0;i<size;i++){
+        codes[i].bits = freqArray[i].bits;
     }
-    printf("size: %d \n", getSize(probability)); // doesn't work on 12 bits yet!
+    codes[0].code = "0";
+    codes[1].code = "1";
+    compressFile(splittedData,dataSize,codes,size);
+
     return 0;
+
 }
