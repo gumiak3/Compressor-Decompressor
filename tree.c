@@ -17,35 +17,35 @@ typedef struct Node {
 } Node;
 
 void make_tree(struct Input *tab, int n){
-	Node* nodes = malloc(sizeof(Node)*(n*2));
+	Node* leafs = malloc(sizeof(Node)*(n*2));
 	for(int i = 0; i < n; i++){
-		nodes[i].symbol = tab[i].symbol;
-		nodes[i].frequency = tab[i].frequency;
+		leafs[i].symbol = tab[i].symbol;
+		leafs[i].frequency = tab[i].frequency;
 	}
 	for(int i = 0; i < n*2; i++){
-		nodes[i].bylo = false;
-		nodes[i].left = NULL;
-		nodes[i].right = NULL;
+		leafs[i].bylo = false;
+		leafs[i].left = NULL;
+		leafs[i].right = NULL;
 	}
 	int k = 0;
 	for(int i = 0; i < n; i++){
-		if(nodes[i].bylo == false){
+		if(leafs[i].bylo == false){
 			k++;
 		}
 	}
-	printf("%d \n", k);
+	// printf("%d \n", k);
 	int mini1, mini2;
 	while(k>1){
 		mini1 = -1;
 		mini2 = -1;
 	        for(int i = 0; i < n; i++){
-        	    if(nodes[i].bylo == false){
+        	    if(leafs[i].bylo == false){
                 	if(mini1 == -1)
                     		mini1 = i;
                 	else if(mini2 == -1)
                     		mini2 = i;
-                	else if(nodes[i].frequency < nodes[mini1].frequency || nodes[i].frequency < nodes[mini2].frequency){
-                    		if(nodes[mini1].frequency < nodes[mini2].frequency){
+                	else if(leafs[i].frequency < leafs[mini1].frequency || leafs[i].frequency < leafs[mini2].frequency){
+                    		if(leafs[mini1].frequency < leafs[mini2].frequency){
                         		mini2=i;
                     		}
                    		 else{
@@ -54,26 +54,31 @@ void make_tree(struct Input *tab, int n){
         	        }
 	            }
         	}		
-		printf("%d %d\n", mini1, mini2);
+		// printf("%d %d\n", mini1, mini2);
 	
-		nodes[n].frequency = nodes[mini1].frequency + nodes[mini2].frequency;
-		nodes[n].left = &nodes[mini1];
-		nodes[n].right = &nodes[mini2];
-		nodes[mini1].bylo = true;
-		nodes[mini2].bylo = true;
+		leafs[n].frequency = leafs[mini1].frequency + leafs[mini2].frequency;
+		leafs[n].left = &leafs[mini1];
+		leafs[n].right = &leafs[mini2];
+		leafs[mini1].bylo = true;
+		leafs[mini2].bylo = true;
 		n++;
 		k = 0;
 		for(int i = 0; i < n; i++){
-			if(nodes[i].bylo == false){
+			if(leafs[i].bylo == false){
 				k++;
 			}
 		}
 	}
-
-	Node* new_nodes = realloc(nodes, sizeof(Node) * n);
-	nodes = new_nodes;
-
+	Node* nodes = malloc(sizeof(Node)*(n));
 	for(int i = 0; i < n; i++){
+		nodes[i].symbol = leafs[i].symbol;
+		nodes[i].frequency = leafs[i].frequency;
+		nodes[i].left = leafs[i].left;
+		nodes[i].right = leafs[i].right;
+		nodes[i].bylo = leafs[i].bylo;
+	}
+    
+    	for(int i = 0; i < n; i++){
 		printf("Node at index %d: \n", i);
 		printf("Symbol:%d ", nodes[i].symbol);
 		printf("frequency:%d ", nodes[i].frequency);
@@ -91,8 +96,8 @@ void make_tree(struct Input *tab, int n){
 		}
 		printf("Bylo:%d ", nodes[i].bylo);
 		printf("\n\n");
-	}
-	printf("Array length: %ld\n", sizeof(nodes) / sizeof(nodes[0]));
+    	}
+	free(leafs);
 }
 
 
