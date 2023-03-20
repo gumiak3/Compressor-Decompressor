@@ -5,7 +5,6 @@
 #include "frequency.h"
 #include "compress.h"
 
-
 int main(int argc, char**argv) {
     int size = 0;
     char *data = readData(argv[1],&size);
@@ -17,10 +16,8 @@ int main(int argc, char**argv) {
     for(int i=0;i<size;i++){
         codes[i].bits = freqArray[i].bits;
     }
-    codes[0].code = "0";
-    codes[1].code = "1";
-    compressFile(splittedData,dataSize,codes,size);
 
+    compressFile(splittedData,dataSize,codes,size);
     return 0;
 
 }
