@@ -1,7 +1,7 @@
 
 #ifndef COMPRESSOR_FREQUENCY_H
 #define COMPRESSOR_FREQUENCY_H
-typedef struct{
+typedef struct frequency_t{
     short bits;
     int frequency;
 }frequency_t;
