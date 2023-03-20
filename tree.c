@@ -4,13 +4,18 @@
 #include <stdbool.h>
 #include <math.h>
 
+#include "tree.h"
+#include "frequency.h"
+
+extern struct frequency_t frequency;
+
 typedef struct Input {
-    short symbol;
+    short bits;
     int frequency;
 } Input;
 
 typedef struct Node {
-    short symbol;
+    short bits;
     int frequency;
     struct Node* left;
     struct Node* right;
@@ -19,21 +24,16 @@ typedef struct Node {
 } Node;
 
 typedef struct Output_tmp {
-    short symbol;
+    short bits;
     int code;
 } Output_tmp;
 
-typedef struct Output {
-    short symbol;
-    char *code;
-    int code_length;
-} Output;
 
-void make_tree(struct Input *tab, struct Node *leafs, struct Node *nodes, int n, int *w){
+void make_tree(struct frequency_t *freqArray, struct Node *leafs, struct Node *nodes, int n, int *w){
     int d = n;
     for(int i = 0; i < n; i++){
-        leafs[i].symbol = tab[i].symbol;
-        leafs[i].frequency = tab[i].frequency;
+        leafs[i].bits = freqArray[i].bits;
+        leafs[i].frequency = freqArray[i].frequency;
     }
     for(int i = 0; i < n*2; i++){
         leafs[i].been = false;
@@ -94,7 +94,7 @@ void make_tree(struct Input *tab, struct Node *leafs, struct Node *nodes, int n,
     }
     nodes = realloc(nodes, sizeof(Node)*(n));
     for(int i = 0; i < n; i++){
-        nodes[i].symbol = leafs[i].symbol;
+        nodes[i].bits = leafs[i].bits;
         nodes[i].frequency = leafs[i].frequency;
         nodes[i].left = leafs[i].left;
         nodes[i].right = leafs[i].right;
@@ -106,13 +106,13 @@ void make_tree(struct Input *tab, struct Node *leafs, struct Node *nodes, int n,
 void dfs(struct Node *root, int tmp_code, struct Output_tmp *codes, int *ile){
     codes[*(ile)].code = tmp_code;
     if(root->left == NULL && root->right == NULL){
-        codes[*(ile)].symbol = root->symbol;
+        codes[*(ile)].bits = root->bits;
     }
     else{
-        codes[*(ile)].symbol = -1;
+        codes[*(ile)].bits = -1;
     }
     (*ile)++;
-    // printf("obecny kod: %d obecny symbol: %d\n", tmp_code, root->symbol);
+    // printf("obecny kod: %d obecny bits: %d\n", tmp_code, root->bits);
     if(root->right != NULL){
         dfs(root->right, tmp_code*2, codes, ile);
     }
@@ -125,8 +125,8 @@ void dfs(struct Node *root, int tmp_code, struct Output_tmp *codes, int *ile){
 void only_leaves(struct Output_tmp *codes_first, struct Output_tmp *codes_second, int k){
     int j = 0;
     for(int i = 0; i < k; i++){
-        if(codes_first[i].symbol != -1){
-            codes_second[j].symbol = codes_first[i].symbol;
+        if(codes_first[i].bits != -1){
+            codes_second[j].bits = codes_first[i].bits;
             codes_second[j].code = codes_first[i].code;
             j++;
         }
@@ -142,8 +142,7 @@ void code_creator(struct Output_tmp *codes_second, struct Output *codes, int n){
             length++;
         }
         length--;
-        codes[i].code_length = length;
-        codes[i].symbol = codes_second[i].symbol;
+        codes[i].bits = codes_second[i].bits;
         printf("%d ", length);
         if(length > 1)
             codes[i].code = malloc(sizeof(char)*length);
@@ -161,108 +160,85 @@ void code_creator(struct Output_tmp *codes_second, struct Output *codes, int n){
     }
 }
 
+Output * get_codes( struct frequency_t  *freqArray, int n) {
+    struct Node *leafs = malloc(sizeof(Node) * (n * 2));
+    struct Node *nodes = malloc(sizeof(Node) * (n * 2));
+    int k = n;
 
-int main(void){
-    int n, k;
-    n = 6;
-    struct Input *tab = malloc(sizeof(struct Input)*n);
+    make_tree(freqArray, leafs, nodes, n, &k);
 
-    tab[0].symbol = 1011;
-    tab[0].frequency = 1;
-    tab[1].symbol = 1010;
-    tab[1].frequency = 2;
-    tab[2].symbol = 1001;
-    tab[2].frequency = 2;
-    tab[3].symbol = 1100;
-    tab[3].frequency = 4;
-    tab[4].symbol = 1111;
-    tab[4].frequency = 4;
-    tab[5].symbol = 1100;
-    tab[5].frequency = 18;
-    struct Node* leafs = malloc(sizeof(Node)*(n*2));
-    struct Node* nodes = malloc(sizeof(Node)*(n*2));
-
-    make_tree(tab, leafs, nodes, n, &k);
-
-    struct Output_tmp* codes_first = malloc(sizeof(Output_tmp)*k);
-    Node root = nodes[k-1];
+    struct Output_tmp *codes_first = malloc(sizeof(Output_tmp) * k);
+    Node root = nodes[k - 1];
     int lvl = 0;
     int ile = 0;
 
     dfs(&root, 1, codes_first, &ile);
 
-    struct Output_tmp* codes_second = malloc(sizeof(Output_tmp)*n);
+    struct Output_tmp *codes_second = malloc(sizeof(Output_tmp) * n);
 
     only_leaves(codes_first, codes_second, k);
 
-    struct Output* codes = malloc(sizeof(Output)*n);
+    struct Output *codes = malloc(sizeof(Output) * n);
 
     code_creator(codes_second, codes, n);
 
-    // for(int i = 0; i < ile; i++){
-    // 	printf("Symbol: %d Code: %d \n", codes_first[i].symbol, codes_first[i].code);
-    // }
-
-    // printf("%d \n", n);
-
-    // printf("po usunieciu \n");
-    // for(int i = 0; i < n; i++){
-    // 	printf("Symbol: %d Code: %d \n", codes_second[i].symbol, codes_second[i].code);
-    // }
-
-    // printf("po stworzeniu kodow \n");
-
-    // for(int i = 0; i < n; i++){
-    // 	printf("Symbol: %d Code: %s o dlugosci kodu %d \n", codes[i].symbol, codes[i].code, codes[i].code_length);
-    // }
-
-    // for(int i = 0; i < k; i++){
-    // 	printf("kod %d: %d\n", i, nodes[i].symbol);
-    // }
-
-    // for(int i = 0; i < n; i++){
-    // 	printf("Symbol: %d Code: ", codes[i].symbol);
-    // 	for(int j = 0; j < n; j++){
-    // 		if(codes[i].code[j] == 2)
-    // 			break;
-    // 		printf("%d", codes[i].code[j]);
-    // 	}
-    // 	printf("\n");
-    // }
-
-    // for(int i = 0; i < k; i++){
-    // 	printf("w wezle nr %d jest symbol %d \n", i, nodes[i].symbol);
-    // }
-    // printf("n = %d \n", n);
-    // printf("k = %d \n", k);
-
-
-
-    // for(int i = 0; i < k; i++){
-    // 	printf("Node at index %d: \n", i);
-    // 	printf("Symbol:%d ", nodes[i].symbol);
-    // 	printf("frequency:%d ", nodes[i].frequency);
-    // 	if(nodes[i].left != NULL){
-    // 	    printf("Left child symbol: %d ", nodes[i].left->symbol);
-    // 	}
-    // 	else{
-    // 	    printf("Left child is NULL ");
-    // 	}
-    // 	if(nodes[i].right != NULL){
-    // 	    printf("Right child symbol: %d ", nodes[i].right->symbol);
-    // 	}
-    // 	else{
-    // 	    printf("Right child is NULL ");
-    // 	}
-    // 	printf("Been:%d ", nodes[i].been);
-    // 	printf("\n\n");
-    // }
-    return 0;
+    return codes;
 }
+// for(int i = 0; i < ile; i++){
+// 	printf("bits: %d Code: %d \n", codes_first[i].bits, codes_first[i].code);
+// }
 
-// obecny kod: 2 obecny symbol: 1110
-// obecny kod: 12 obecny symbol: 1111
-// obecny kod: 13 obecny symbol: 1100
-// obecny kod: 15 obecny symbol: 1001
-// obecny kod: 28 obecny symbol: 1010
-// obecny kod: 29 obecny symbol: 1011
+// printf("%d \n", n);
+
+// printf("po usunieciu \n");
+// for(int i = 0; i < n; i++){
+// 	printf("bits: %d Code: %d \n", codes_second[i].bits, codes_second[i].code);
+// }
+
+// printf("po stworzeniu kodow \n");
+
+// for(int i = 0; i < n; i++){
+// 	printf("bits: %d Code: %s o dlugosci kodu %d \n", codes[i].bits, codes[i].code, codes[i].code_length);
+// }
+
+// for(int i = 0; i < k; i++){
+// 	printf("kod %d: %d\n", i, nodes[i].bits);
+// }
+
+// for(int i = 0; i < n; i++){
+// 	printf("bits: %d Code: ", codes[i].bits);
+// 	for(int j = 0; j < n; j++){
+// 		if(codes[i].code[j] == 2)
+// 			break;
+// 		printf("%d", codes[i].code[j]);
+// 	}
+// 	printf("\n");
+// }
+
+// for(int i = 0; i < k; i++){
+// 	printf("w wezle nr %d jest bits %d \n", i, nodes[i].bits);
+// }
+// printf("n = %d \n", n);
+// printf("k = %d \n", k);
+
+
+
+// for(int i = 0; i < k; i++){
+// 	printf("Node at index %d: \n", i);
+// 	printf("bits:%d ", nodes[i].bits);
+// 	printf("frequency:%d ", nodes[i].frequency);
+// 	if(nodes[i].left != NULL){
+// 	    printf("Left child bits: %d ", nodes[i].left->bits);
+// 	}
+// 	else{
+// 	    printf("Left child is NULL ");
+// 	}
+// 	if(nodes[i].right != NULL){
+// 	    printf("Right child bits: %d ", nodes[i].right->bits);
+// 	}
+// 	else{
+// 	    printf("Right child is NULL ");
+// 	}
+// 	printf("Been:%d ", nodes[i].been);
+// 	printf("\n\n");
+// }
