@@ -1,13 +1,12 @@
 #include "frequency.h"
 #include "tree.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include <stdbool.h>
 #include <math.h>
 
-extern struct frequency_t frequency;
 
 typedef struct Input {
     short bits;
@@ -29,7 +28,7 @@ typedef struct Output_tmp {
 } Output_tmp;
 
 
-void make_tree(struct frequency_t *freqArray, struct Node *leafs, struct Node *nodes, int n, int *w){
+void make_tree( frequency_t *freqArray, struct Node *leafs, struct Node *nodes, int n, int *w){
     int d = n;
     for(int i = 0; i < n; i++){
         leafs[i].bits = freqArray[i].bits;
@@ -143,11 +142,8 @@ void code_creator(struct Output_tmp *codes_second, struct Output *codes, int n){
         }
         length--;
         codes[i].bits = codes_second[i].bits;
-        printf("%d ", length);
-        if(length > 1)
-            codes[i].code = malloc(sizeof(char)*length);
-        else
-            codes[i].code = malloc(sizeof(char));
+//        printf("%d ", length);
+        codes[i].code = malloc(sizeof(char)*length);
         tmp = codes_second[i].code;
         for(int j = length-1; j >= 0; j--){
             if(tmp%2 == 0)
@@ -160,7 +156,9 @@ void code_creator(struct Output_tmp *codes_second, struct Output *codes, int n){
     }
 }
 
-Output * get_codes( struct frequency_t  *freqArray, int n) {
+Output * get_codes( frequency_t  *freqArray, int n) {
+
+
     struct Node *leafs = malloc(sizeof(Node) * (n * 2));
     struct Node *nodes = malloc(sizeof(Node) * (n * 2));
     int k = n;
@@ -181,6 +179,7 @@ Output * get_codes( struct frequency_t  *freqArray, int n) {
     struct Output *codes = malloc(sizeof(Output) * n);
 
     code_creator(codes_second, codes, n);
+
 
     return codes;
 }
