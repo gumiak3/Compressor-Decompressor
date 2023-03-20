@@ -10,7 +10,6 @@ int main(int argc, char**argv) {
     char *data = readData(argv[1],&size);
     char rest;
     short *splittedData = splitData(data,&size,12,&rest);
-    printf("%d", size);
     int dataSize = size;
     frequency_t * freqArray = getFrequency(splittedData,&size);
     //codes_t * codes = malloc(sizeof(*codes)*size);

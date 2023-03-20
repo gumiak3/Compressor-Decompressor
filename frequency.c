@@ -1,5 +1,7 @@
 #include "frequency.h"
 #include <stdlib.h>
+void init_frequency()
+
 void clearArray(frequency_t *array, int size){
     for(int i=0;i<size;i++){
         array[i].bits = 0;
