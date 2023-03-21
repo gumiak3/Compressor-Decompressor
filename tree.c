@@ -132,29 +132,34 @@ void only_leaves(struct Output_tmp *codes_first, struct Output_tmp *codes_second
     }
 }
 
-void code_creator(struct Output_tmp *codes_second, struct Output *codes, int n){
-    for(int i = 0; i < n; i++){
+void code_creator(struct Output_tmp *codes_second, struct Output *codes, int n) {
+    for(int i = 0; i < n; i++) {
         int tmp = codes_second[i].code;
         int length = 0;
-        while(tmp != 0){
+        while(tmp != 0) {
             tmp = tmp/2;
             length++;
         }
         length--;
         codes[i].bits = codes_second[i].bits;
-//        printf("%d ", length);
-        codes[i].code = malloc(sizeof(char)*length);
+
+        char* new_str = malloc(length + 1);
         tmp = codes_second[i].code;
-        for(int j = length-1; j >= 0; j--){
-            if(tmp%2 == 0)
-                codes[i].code[j] = '0';
-            else
-                codes[i].code[j] = '1';
-            // codes[i].code[j] = tmp%2;
-            tmp = tmp/2;
+        for(int j = length-1; j >= 0; j--) {
+            if(tmp % 2 == 0) {
+                new_str[j] = '0';
+            } else {
+                new_str[j] = '1';
+            }
+            tmp = tmp / 2;
         }
+        new_str[length] = '\0';
+
+        codes[i].code = new_str;
+//        printf("obecny kod to: %s, a jego dlugosc to: %d\n", codes[i].code, strlen(codes[i].code));
     }
 }
+
 
 Output * get_codes( frequency_t  *freqArray, int n) {
 
