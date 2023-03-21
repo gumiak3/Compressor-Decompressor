@@ -1,5 +1,6 @@
 #include "frequency.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 void clearArray(frequency_t *array, int size){
     for(int i=0;i<size;i++){
@@ -22,7 +23,6 @@ frequency_t * getFrequency(short *data, int *size){
     clearArray(frequencyArray,*size);
     int index=0;
     for(int i=0;i<*size;i++){
-        int temp ;
         if( contains(frequencyArray,data[i],*size) != (-1)){
             frequencyArray[contains(frequencyArray,data[i],*size)].frequency++;
         }else{
