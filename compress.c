@@ -12,7 +12,7 @@ char convertToBits(char *code, int length){
     return output;
 }
 
-char * getCode(short bits, codes_t *codes, int size, int *codeLength){
+char * getCode(short bits, Output *codes, int size, int *codeLength){
     for(int i=0;i<size;i++){
         if(bits==codes[i].bits){
             *codeLength = strlen(codes[i].code);
@@ -21,10 +21,10 @@ char * getCode(short bits, codes_t *codes, int size, int *codeLength){
     }
     return NULL;
 }
-//
+
 //void addControlSums(char *rest,)
 
-void compressFile(short *splittedData,int dataSize, codes_t *codes, int codesSize, char *rest){
+void compressFile(short *splittedData,int dataSize, Output *codes, int codesSize, char *rest){
     FILE *out = fopen("output.bin", "wb");
     char *headline = "#LP#\n";
     fwrite(headline,sizeof(*headline),strlen(headline),out);
@@ -59,7 +59,14 @@ void compressFile(short *splittedData,int dataSize, codes_t *codes, int codesSiz
         fwrite(&toWrite,sizeof(char),1,out);
         // dodac jakas sume kontrolna, ktora powie ze na koncu jest jakas reszta
     }
+    // nastepna reszta
     if(*rest != 0)
         fwrite(rest,sizeof(char),1,out);
     fclose(out);
 }
+
+/* TO DO
+ * Suma kontrolna dla reszty ze slownika
+ * Suma kontrolna dla reszty ze splittera
+ * Zapisanie slownika do pliku
+*/

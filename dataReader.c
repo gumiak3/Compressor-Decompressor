@@ -4,9 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "dataReader.h"
-void doubleSize(char *array, int *length){
+void doubleSize(char *data, int *length){
     *length*=2;
-    array = realloc(array, sizeof(*array) * *length);
+    data = realloc(data, sizeof(*data) * *length);
 }
 
 char * readData(char *fileName, int *size){
@@ -21,8 +21,11 @@ char * readData(char *fileName, int *size){
     while((ch = fgetc(in))!=EOF){
         data[*size] = ch;
         (*size)++;
-        if(*size == length)
-            doubleSize(data,&length);
+        if(*size == length){
+            length*=2;
+            data = realloc(data, sizeof(*data) * length);
+             // doubleSize(data,&length);
+        }
     }
     fclose(in);
     return data;
