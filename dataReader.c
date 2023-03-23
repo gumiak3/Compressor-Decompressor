@@ -18,15 +18,24 @@ char * readData(char *fileName, int *size){
     }
     char ch;
     char *data = malloc(sizeof(*data) * length);
-    while((ch = fgetc(in))!=EOF){
-        data[*size] = ch;
+    char buffor;
+    while(fread(&buffor,1,sizeof(buffor),in) != 0){
+        data[*size] = buffor;
         (*size)++;
         if(*size == length){
             length*=2;
             data = realloc(data, sizeof(*data) * length);
-             // doubleSize(data,&length);
         }
     }
+//    while((ch = fgetc(in))!=EOF){
+//        data[*size] = ch;
+//        (*size)++;
+//        if(*size == length){
+//            length*=2;
+//            data = realloc(data, sizeof(*data) * length);
+//             // doubleSize(data,&length);
+//        }
+//    }
     fclose(in);
     return data;
 }
