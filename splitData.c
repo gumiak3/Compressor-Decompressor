@@ -8,57 +8,70 @@ short *splitTo8(char *data, int *size, char *rest){
     }
     return outputData;
 }
-short *splitTo12(char *data, int *size,int *newSize, char *rest){
+short *splitTo12(char *data, int *size,int *newSize, char *rest, int *restBits){
     *newSize = ((*size) * 8 )/12;
     short *outputData = malloc(sizeof(*outputData) * (*newSize));
     int index = 0;
-    int length = (((*size) * 8 )%12) == 0 ? *size : *size-1;
-    for (int i = 0; i < length; i += 2) {
-        outputData[index] = (data[i] & 0x0F);
-        outputData[index] = ((data[i] << 4) & 0xF0) | ((data[i + 1] >> 4) & 0x0F);
+    int numberOfRest = (((*size) * 8 )%12);
+    int length;
+    if(numberOfRest == 8){
+        // 8 bitow zostaje
+        length = *size-1;
+    }else{
+        length = *size;
+    }
+    for (int i = 0; i < length; i += 3) {
+        outputData[index] = (data[i]);
+        outputData[index] = (outputData[index] << 4) | ((data[i + 1] >> 4) & 0x0F);
         index++;
-        outputData[index] = (data[i+1] << 4);
-        outputData[index] = ((data[i + 1] << 4) & 0xF0) | (data[i + 2] & 0x0F);
-        i++;
+        if((i + 2) < length){
+            outputData[index] = (data[i+1] << 4);
+            outputData[index] = (outputData[index] << 4) | (data[i + 2]);
+        }else{
+            *rest = (data[i+1]<<4);
+        }
         index++;
     }
-    if((((*size) * 8 )%12) != 0){
-        *rest = data[length-1];
-    }
+    if(numberOfRest==8)
+        *rest = data[length];
+    *restBits = numberOfRest;
     return outputData;
-
 }
-short *splitTo16(char *data, int *size, int *newSize, char *rest){
+short *splitTo16(char *data, int *size, int *newSize, char *rest, int *restBits){
     int mask = 0x00FF; // to extract useless 1
     *newSize = ((*size) * 8)/16;
     short *outputData = malloc(sizeof(*outputData) * *newSize);
     int index = 0;
     int length = *size%2==0 ? *size : *size-1;
     for(int i=0;i<length;i+=2){
-        outputData[index++] = (data[i] << 8) | (data[i+1] & mask);
+        outputData[index++] = (data[i] << 8) | (data[i+1]);
     }
-    if(*size%2!=0){
+    if((*size)%2!=0){
         *rest = data[*size-1];
+        *restBits = 8;
         // we got rest of bits;
+    }else{
+        *restBits = 0;
     }
     return outputData;
 }
 
-short *splitData(char *data, int *size,int bitsToRead, char *rest){
+short *splitData(char *data, int *size,int bitsToRead, char *rest, int *restBits){
     short *splittedData;
     int newSize = 0;
     switch(bitsToRead){
         case 8:{
             splittedData = splitTo8(data,size,rest);
+            *restBits = 0;
             break;
         }
         case 12:{
-            splittedData = splitTo12(data,size,&newSize,rest);
+            splittedData = splitTo12(data,size,&newSize,rest,restBits);
             *size = newSize;
             break;
         }
         case 16:{
-            splittedData = splitTo16(data,size,&newSize,rest);
+            splittedData = splitTo16(data,size,&newSize,rest,restBits);
             *size = newSize;
             break;
         }
