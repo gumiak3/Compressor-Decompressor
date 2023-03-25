@@ -8,7 +8,7 @@
 #include "sumController.h"
 int main(int argc, char**argv) {
     int size = 0;
-    int compressionRatio = 8;
+    int compressionRatio = 16;
     char *data = readData(argv[1], &size);
     char rest; // reszta po podzieleniu na 12 lub 16
     int restBits; // ilosc bitow ile zajmuje reszta
