@@ -6,7 +6,6 @@ int getCodeLength(short bits, Output *codes, int size, int *codeLength){
     for(int i=0;i<size;i++){
         if(bits==codes[i].bits){
             return strlen(codes[i].code);
-
         }
     }
     return 0;
@@ -25,7 +24,9 @@ char * toBinary(int number){
 int getControlSumOfCodeRest(frequency_t *frequency, Output *codes, int size,int numberOfBitsToRead){ // liczy ile bitow czytamy z reszty, która wypada podczas wpisywania bitow do pliku
     int sumBits = 0;
     int temp = 0;
+
     for(int i=0;i<size;i++){
+        sumBits+=numberOfBitsToRead+8+strlen(codes[i].code); // [8/12/16] + dlugosc_zapisana_w_B[8] + dlugosc_kodu
         sumBits+=frequency[i].frequency * getCodeLength(frequency[i].bits,codes,size,&temp);
     }
     return sumBits%numberOfBitsToRead;

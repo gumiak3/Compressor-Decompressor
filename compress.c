@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-char convertToBits(char *code, int length){
-    char output = 0x0;
+short convertToBits(char *code, int length){
+    short output = 0x0;
     for(int i=0;i<length;i++){
         if(code[i]=='1'){
             output |= (1 << (length- 1 - i));
@@ -67,8 +67,13 @@ char* toChar(short bits, int length){
     }
     return buffor;
 }
-// brakuje pomiedzy znakiem a jego kodem długości tego kodu
+void writeDictionarySizeToFile(int size,FILE *out){
+    short toWrite = convertToBits(intToBinary(size,16),16);
+    toWrite = ((toWrite & 0xFF00) >> 8) | ((toWrite & 0x00FF) << 8);
+    fwrite(&toWrite,2,1,out);
+}
 void writeDictionary(char *buffor,int *bufforIndex,Output *codes, int size, FILE *out,int compressionRatio){
+    writeDictionarySizeToFile(size,out);
     char *code = toChar(codes[0].bits,compressionRatio);
     int codeIndex=0;
     int i=0;
@@ -107,6 +112,7 @@ void writeDictionary(char *buffor,int *bufforIndex,Output *codes, int size, FILE
 }
 
 void compressFile(short *splittedData,int dataSize, Output *codes, int codesSize, char *rest, controlSums_t *controlSums, int compressionRatio){
+    printf("%d\n", convertToBits(intToBinary(12345,16),16));
     FILE *out = fopen("output.bin", "wb");
     writeHeadline("#LP#",out);
     writeControlSumToFile(controlSums,out);
@@ -139,9 +145,7 @@ void compressFile(short *splittedData,int dataSize, Output *codes, int codesSize
         for(int j=7;j>=bufforIndex;j--){
             buffor[j]='0';
         }
-        printf("%s\n", buffor);
         char toWrite = convertToBits(buffor, 8);
-        printf("%d\n",toWrite);
         fwrite(&toWrite,sizeof(char),1,out);
     }
     // nastepna reszta ktora dostalismy ze splitowania danych
