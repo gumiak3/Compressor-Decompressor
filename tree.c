@@ -163,27 +163,31 @@ void code_creator(struct Output_tmp *codes_second, struct Output *codes, int n) 
 
 Output * get_codes( frequency_t  *freqArray, int n) {
 
-
-    struct Node *leafs = malloc(sizeof(Node) * (n * 2));
-    struct Node *nodes = malloc(sizeof(Node) * (n * 2));
-    int k = n;
-
-    make_tree(freqArray, leafs, nodes, n, &k);
-
-    struct Output_tmp *codes_first = malloc(sizeof(Output_tmp) * k);
-    Node root = nodes[k - 1];
-    int lvl = 0;
-    int ile = 0;
-
-    dfs(&root, 1, codes_first, &ile);
-
-    struct Output_tmp *codes_second = malloc(sizeof(Output_tmp) * n);
-
-    only_leaves(codes_first, codes_second, k);
-
     struct Output *codes = malloc(sizeof(Output) * n);
+    if(n > 1){
+        struct Node *leafs = malloc(sizeof(Node) * (n * 2));
+        struct Node *nodes = malloc(sizeof(Node) * (n * 2));
+        int k = n;
 
-    code_creator(codes_second, codes, n);
+        make_tree(freqArray, leafs, nodes, n, &k);
+
+        struct Output_tmp *codes_first = malloc(sizeof(Output_tmp) * k);
+        Node root = nodes[k - 1];
+        int lvl = 0;
+        int ile = 0;
+
+        dfs(&root, 1, codes_first, &ile);
+
+        struct Output_tmp *codes_second = malloc(sizeof(Output_tmp) * n);
+
+        only_leaves(codes_first, codes_second, k);
+
+        code_creator(codes_second, codes, n);
+    }
+    else{
+        codes[0].bits = freqArray[0].bits;
+        codes[0].code = "0";
+    }
 
 
     return codes;
