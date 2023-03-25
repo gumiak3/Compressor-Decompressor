@@ -1,6 +1,7 @@
 #include "compress.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 char convertToBits(char *code, int length){
     char output = 0x0;
     for(int i=0;i<length;i++){
@@ -9,6 +10,20 @@ char convertToBits(char *code, int length){
         }
     }
     return output;
+}
+char * intToBinary(int number, int length){
+    char *output = malloc(sizeof(*output) * 8);
+    int i = 0;
+    while (number > 0) {
+        output[i++] = number%2==0 ? '0' : '1';
+        number /= 2;
+    }
+    output[i] = '\0';
+    for(int j=i;j<length;j++){
+        output[j] = '0';
+    }
+    output[length] = '\0';
+    return strrev(output); // reversing the array
 }
 
 char * getCode(short bits, Output *codes, int size, int *codeLength){
@@ -36,22 +51,72 @@ void writeControlSumToFile(controlSums_t * controlSums, FILE *out){
         for(int j=8-strlen(controlSums[i].binaryRepresentation);j<8;j++){
             buffor2[j] = controlSums[i].binaryRepresentation[j - (8-strlen(controlSums[i].binaryRepresentation))];
         }
-        printf("%s\n",buffor2);
         char toWrite = convertToBits(buffor2,8);
         fwrite(&toWrite,sizeof(char),1,out);
     }
-    fwrite("\n",sizeof(char),1,out);
 }
 
-void compressFile(short *splittedData,int dataSize, Output *codes, int codesSize, char *rest, controlSums_t *controlSums){
+char* toChar(short bits, int length){
+    char *buffor = malloc(sizeof(*buffor) * (length+1));
+    memset(buffor,'0',length);
+    buffor[length] = '\0';
+    for(int i = length-1;i>=0;i--){
+        if(bits & (1 << i)){
+            buffor[length- 1- i] = '1';
+        }
+    }
+    return buffor;
+}
+// brakuje pomiedzy znakiem a jego kodem długości tego kodu
+void writeDictionary(char *buffor,int *bufforIndex,Output *codes, int size, FILE *out,int compressionRatio){
+    char *code = toChar(codes[0].bits,compressionRatio);
+    int codeIndex=0;
+    int i=0;
+    int j=0; // helper
+    while(i<size){
+        while(*bufforIndex < 8 && codeIndex < strlen(code)){
+            buffor[(*bufforIndex)++] = code[codeIndex++];
+        }
+        if(*bufforIndex == 8){
+            // wpisujemy do pliku
+            char toWrite = convertToBits(buffor, 8);
+            fwrite(&toWrite,sizeof(char),1,out);
+            *bufforIndex = 0;
+        }
+        if(codeIndex == strlen(code)){
+            if(j%3==2)
+                i++;
+            switch(j%3){
+                case 0:{
+                    code = intToBinary(strlen(codes[i].code),8);
+                    break;
+                }
+                case 1:{
+                    code = codes[i].code;
+                    break;
+                }
+                case 2:{
+                    code = toChar(codes[i].bits,compressionRatio);
+                    break;
+                }
+            }
+            j++;
+            codeIndex = 0;
+        }
+    }
+}
+
+void compressFile(short *splittedData,int dataSize, Output *codes, int codesSize, char *rest, controlSums_t *controlSums, int compressionRatio){
     FILE *out = fopen("output.bin", "wb");
     writeHeadline("#LP#",out);
     writeControlSumToFile(controlSums,out);
+    fwrite("\n",sizeof(char),1,out);
     int codeLength=0;
     int codeIndex=0;
     int bufforIndex = 0;
     char buffor[8] = {};
     int i=0;
+    writeDictionary(buffor,&bufforIndex,codes,codesSize,out,compressionRatio);
     char *code = getCode(splittedData[i++],codes,codesSize,&codeLength);
     while(i <= dataSize){
         while(bufforIndex < 8  && codeIndex < codeLength){
@@ -74,7 +139,9 @@ void compressFile(short *splittedData,int dataSize, Output *codes, int codesSize
         for(int j=7;j>=bufforIndex;j--){
             buffor[j]='0';
         }
+        printf("%s\n", buffor);
         char toWrite = convertToBits(buffor, 8);
+        printf("%d\n",toWrite);
         fwrite(&toWrite,sizeof(char),1,out);
     }
     // nastepna reszta ktora dostalismy ze splitowania danych

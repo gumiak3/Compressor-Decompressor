@@ -10,9 +10,6 @@ int main(int argc, char**argv) {
     int size = 0;
     int compressionRatio = 8;
     char *data = readData(argv[1], &size);
-    for(int i=0;i<size;i++){
-        printf("%c\n",data[i]);
-    }
     char rest; // reszta po podzieleniu na 12 lub 16
     int restBits; // ilosc bitow ile zajmuje reszta
     short *splittedData = splitData(data, &size, compressionRatio, &rest, &restBits);
@@ -29,6 +26,6 @@ int main(int argc, char**argv) {
         fputc('\n', testFile);
     }
     controlSums_t * controlSums = getControlSums(compressionRatio, freqArray, codes, size, restBits);
-    compressFile(splittedData,dataSize,codes,size,&rest, controlSums);
+    compressFile(splittedData,dataSize,codes,size,&rest, controlSums,compressionRatio);
     return 0;
 }
