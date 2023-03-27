@@ -24,13 +24,12 @@ char * toBinary(int number){
 int getControlSumOfCodeRest(frequency_t *frequency, Output *codes, int size,int numberOfBitsToRead){ // liczy ile bitow czytamy z reszty, która wypada podczas wpisywania bitow do pliku
     int sumBits = 0;
     int temp = 0;
-
     for(int i=0;i<size;i++){
-        sumBits+=numberOfBitsToRead+8+strlen(codes[i].code); // [8/12/16] + dlugosc_zapisana_w_B[8] + dlugosc_kodu
         sumBits+=frequency[i].frequency * getCodeLength(frequency[i].bits,codes,size,&temp);
     }
     return sumBits%8;
 }
+
 
 controlSums_t *getControlSums(int compressionRatio,frequency_t *frequency, Output *codes, int size, int restBits){
     controlSums_t *sums = malloc(sizeof(*sums) * 3);

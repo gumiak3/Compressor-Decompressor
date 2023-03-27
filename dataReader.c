@@ -8,8 +8,10 @@ void doubleSize(char *data, int *length){
     *length*=2;
     data = realloc(data, sizeof(*data) * *length);
 }
+// czy jest to plik kompressowany albo czy dostalismy flage
 
-char * readData(char *fileName, int *size){
+
+unsigned char * readData(char *fileName, int *size){
     int length = 1024;
     FILE *in = fopen(fileName,"rb");
     if(in == NULL){
@@ -17,7 +19,7 @@ char * readData(char *fileName, int *size){
         return NULL;
     }
     char ch;
-    char *data = malloc(sizeof(*data) * length);
+    unsigned char *data = malloc(sizeof(*data) * length);
     char buffor;
     while(fread(&buffor,1,sizeof(buffor),in) != 0){
         data[*size] = buffor;
@@ -27,15 +29,7 @@ char * readData(char *fileName, int *size){
             data = realloc(data, sizeof(*data) * length);
         }
     }
-//    while((ch = fgetc(in))!=EOF){
-//        data[*size] = ch;
-//        (*size)++;
-//        if(*size == length){
-//            length*=2;
-//            data = realloc(data, sizeof(*data) * length);
-//             // doubleSize(data,&length);
-//        }
-//    }
     fclose(in);
     return data;
 }
+
