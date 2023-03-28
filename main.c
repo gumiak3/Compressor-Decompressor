@@ -11,20 +11,25 @@
 
 int main(int argc, char**argv) {
     int size = 0;
-    int compressionRatio = 16;
-    unsigned char *data = readData("../Compressor-Decompressor/output.bin", &size);
+    int compressionRatio = 8;
+    unsigned char *data = readData("../Compressor-Decompressor/output.txt", &size);
+
     int *controlSums;
     if(headerCheck(data,&size)){
         controlSums = getCompressSums(data,&size);
     }
+    if(controlSums[2]!=0){
+        size--; // jeżeli zostaje reszta, którą nie kompresujemy
+    }
     int dictionarySize = 0;
     Output *dictionary = getDictionary(data,&size,compressionRatio,&dictionarySize);
     for(int i=0;i<dictionarySize;i++){
-        printf("bits: %d -> code: %s\n",dictionary[i].bits,dictionary[i].code);
+        printf("%c -> %s\n",dictionary[i].bits, dictionary[i].code);
     }
-    printf("%d\n", size);
     char *finalData = getBitsInChar(data,&size,controlSums[1]);
+    printf("%s\n",finalData);
     decoder(dictionary,finalData,dictionarySize,compressionRatio);
+//
 //    unsigned char rest = 0; // reszta po podzieleniu na 12 lub 16
 //    int restBits; // ilosc bitow ile zajmuje reszta
 //    short *splittedData = splitData(data, &size, compressionRatio, &rest, &restBits);

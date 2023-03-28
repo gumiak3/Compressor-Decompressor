@@ -50,7 +50,7 @@ int to_decimal(int n)
 }
 
 void decoder(Output *codes, char *data, int n, int version){
-    FILE *out = fopen("../Compressor-Decompressor/nowy.txt","wb");
+    FILE *out = fopen("../Compressor-Decompressor/testowy_output.txt","wb");
     decode_t *decimal_codes= malloc(sizeof(decode_t) * n);
 
     for(int i = 0; i < n; i++){
@@ -85,8 +85,8 @@ void decoder(Output *codes, char *data, int n, int version){
         }
 //        printf("%d ", tmp);
         if(final_codes[tmp].bits != -1){
-            printf("%d", final_codes[tmp].bits);
-            // wpisywanie do pliku
+//            printf("%d", final_codes[tmp].bits);
+            fwrite(&final_codes[tmp].bits,1,1,out);
             tmp = 1;
         }
 

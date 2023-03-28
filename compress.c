@@ -123,7 +123,7 @@ void writeDictionary(Output *codes, int size, FILE *out,int compressionRatio){
 
 void compressFile(short *splittedData,int dataSize, Output *codes, int codesSize, char *rest, controlSums_t *controlSums, int compressionRatio){
     printf("%d\n", convertToBits(intToBinary(12345,16),16));
-    FILE *out = fopen("../Compressor-Decompressor/output.bin", "wb");
+    FILE *out = fopen("../Compressor-Decompressor/output.txt", "wb");
     writeHeadline("#LP#",out);
     writeControlSumToFile(controlSums,out);
     int codeLength=0;

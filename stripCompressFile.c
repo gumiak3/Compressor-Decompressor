@@ -118,20 +118,23 @@ Output * getDictionary(unsigned char *data, int *size, int compressionRatio, int
 
 char *getBitsInChar(unsigned char *data, int *size, int rest){
     int numberOfBitsToRead;
+    printf("%d\n",rest);
     if(rest>0){
-        numberOfBitsToRead = *size*8-(8-rest);
+        numberOfBitsToRead = *size * 8 - (8-rest); // cos tu zle
     }else{
         numberOfBitsToRead = *size*8;
     }
     int helper = numberOfBitsToRead;
     char *output = malloc(sizeof(*output)*numberOfBitsToRead);
     int i=0;
+    int d = 0;
     int index=0;
     while(i<*size){
         char *temp = intToBinary(data[i++],8);
         int tempIndex =0;
-        while(numberOfBitsToRead-- && tempIndex < 8){
+        while(numberOfBitsToRead>0 && tempIndex < 8){
             output[index++] = temp[tempIndex++];
+            numberOfBitsToRead--;
         }
     }
     *size = helper;
