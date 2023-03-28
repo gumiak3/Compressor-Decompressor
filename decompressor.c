@@ -86,7 +86,9 @@ void decoder(Output *codes, char *data, int n, int version){
 //        printf("%d ", tmp);
         if(final_codes[tmp].bits != -1){
 //            printf("%d", final_codes[tmp].bits);
-            fwrite(&final_codes[tmp].bits,1,1,out);
+            char toWrite = final_codes[tmp].bits;
+            printf("%c",toWrite);
+            fwrite(&toWrite,sizeof(char),1,out);
             tmp = 1;
         }
 

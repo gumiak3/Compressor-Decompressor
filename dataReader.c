@@ -11,15 +11,14 @@ void doubleSize(char *data, int *length){
 // czy jest to plik kompressowany albo czy dostalismy flage
 
 
-unsigned char * readData(char *fileName, int *size){
+char * readData(char *fileName, int *size){
     int length = 1024;
     FILE *in = fopen(fileName,"rb");
     if(in == NULL){
         fprintf(stderr,"Couldn't open the file!\n");
         return NULL;
     }
-    char ch;
-    unsigned char *data = malloc(sizeof(*data) * length);
+    char *data = malloc(sizeof(*data) * length);
     char buffor;
     while(fread(&buffor,1,sizeof(buffor),in) != 0){
         data[*size] = buffor;

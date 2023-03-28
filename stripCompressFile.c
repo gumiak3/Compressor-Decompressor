@@ -4,11 +4,11 @@
 #include <stdio.h>
 #include <math.h>
 
-void removeItems(unsigned char *data, int *size, int amountToRemove){
+void removeItems(char *data, int *size, int amountToRemove){
     memmove(data,data+amountToRemove,*size-amountToRemove);
     *size-=amountToRemove;
 }
-int headerCheck(unsigned char *data, int *size) {
+int headerCheck(char *data, int *size) {
     char *header = "#LP#";
     for(int i=0;i<4;i++){
         if(data[i]!=header[i])
@@ -19,7 +19,7 @@ int headerCheck(unsigned char *data, int *size) {
 }
 
 
-int *getCompressSums(unsigned char *data, int *size){
+int *getCompressSums(char *data, int *size){
     int *sums = malloc(sizeof(int) *3);
     for(int i=0;i<3;i++){
         sums[i] = data[i];
@@ -48,11 +48,10 @@ int getDictionarySize(char *a, char *b){
     char * result = malloc(sizeof(char)*2);
     concatenate_strings(a,b,result);
     int size = binary_to_decimal(result);
-    free(result);
     return size;
 }
 
-Output * getDictionary(unsigned char *data, int *size, int compressionRatio, int *dictionarySize){
+Output * getDictionary(char *data, int *size, int compressionRatio, int *dictionarySize){
     *dictionarySize = getDictionarySize(intToBinary(data[0],8), intToBinary(data[1],8));
     removeItems(data,size,2);
     Output *dictionary = malloc(sizeof(*dictionary)* (*dictionarySize));
@@ -74,15 +73,7 @@ Output * getDictionary(unsigned char *data, int *size, int compressionRatio, int
             buffor[bufforIndex++] = temp[tempIndex++];
             codeIndex++;
         }
-        if(tempIndex == 8){
-            tempIndex = 0;
-            if (dataIndex > *size) {
-                printf("Error: dataIndex exceeds data size\n");
-                exit(1);
-            }
-            temp = intToBinary(data[dataIndex++],8);
-            amountToRemove++;
-        }
+
         if(codeIndex==codeLength){
             buffor[bufforIndex] = '\0';
             switch(whichData%3){
@@ -111,21 +102,30 @@ Output * getDictionary(unsigned char *data, int *size, int compressionRatio, int
             bufforIndex=0;
             codeIndex = 0;
         }
+        if(tempIndex == 8 && i < *dictionarySize){
+            tempIndex = 0;
+            if (dataIndex > *size) {
+                printf("Error: dataIndex exceeds data size\n");
+                exit(1);
+            }
+            temp = intToBinary(data[dataIndex++],8);
+            amountToRemove++;
+        }
     }
     removeItems(data,size,amountToRemove);
     return dictionary;
+
 }
 
-char *getBitsInChar(unsigned char *data, int *size, int rest){
+char *getBitsInChar(char *data, int *size, int rest){
     int numberOfBitsToRead;
-    printf("%d\n",rest);
     if(rest>0){
         numberOfBitsToRead = *size * 8 - (8-rest); // cos tu zle
     }else{
         numberOfBitsToRead = *size*8;
     }
     int helper = numberOfBitsToRead;
-    char *output = malloc(sizeof(*output)*numberOfBitsToRead);
+    char *output = malloc(sizeof(*output)*(numberOfBitsToRead * 2));
     int i=0;
     int d = 0;
     int index=0;

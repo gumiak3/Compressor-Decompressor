@@ -11,20 +11,28 @@ short convertToBits(char *code, int length){
     }
     return output;
 }
-char * intToBinary(int number, int length){
+char *intToBinary(int number, int length){
     char *output = malloc(sizeof(*output) * length + 1);
     int i = 0;
-    while (number > 0) {
-        output[i++] = number%2==0 ? '0' : '1';
-        number /= 2;
+    if (number < 0) {
+        number = -number;
+        number = ((1 << (length-1)) - number);
+        output[i++] = '1';
+    } else {
+        output[i++] = '0';
     }
-    output[i] = '\0';
-    for(int j=i;j<length;j++){
-        output[j] = '0';
-    }
-    output[length] = '\0';
 
-    return strrev(output); // reversing the array
+    for (int j = length-2; j >= 0; j--) {
+        if (number & (1 << j)) {
+            output[i++] = '1';
+        } else {
+            output[i++] = '0';
+        }
+    }
+
+    output[i] = '\0';
+
+    return output;
 }
 
 char * getCode(short bits, Output *codes, int size, int *codeLength){
@@ -69,11 +77,12 @@ char* toChar(short bits, int length){
     return buffor;
 }
 void writeDictionarySizeToFile(int size,FILE *out){
-    short toWrite = convertToBits(intToBinary(size,16),16);
+    short toWrite = size;
     toWrite = ((toWrite & 0xFF00) >> 8) | ((toWrite & 0x00FF) << 8);
     fwrite(&toWrite,2,1,out);
 }
 void writeDictionary(Output *codes, int size, FILE *out,int compressionRatio){
+    printf("%d\n",size);
     writeDictionarySizeToFile(size,out);
     char *code = toChar(codes[0].bits,compressionRatio);
     int codeIndex=0;
@@ -116,22 +125,26 @@ void writeDictionary(Output *codes, int size, FILE *out,int compressionRatio){
         for(int j=7;j>=bufforIndex;j--){
             buffor[j]='0';
         }
+        printf("RESZTA SLOWNIKA: %s %d\n",buffor, bufforIndex);
         char toWrite = convertToBits(buffor, 8);
         fwrite(&toWrite,sizeof(char),1,out);
     }
+
 }
 
 void compressFile(short *splittedData,int dataSize, Output *codes, int codesSize, char *rest, controlSums_t *controlSums, int compressionRatio){
-    printf("%d\n", convertToBits(intToBinary(12345,16),16));
     FILE *out = fopen("../Compressor-Decompressor/output.txt", "wb");
     writeHeadline("#LP#",out);
+
     writeControlSumToFile(controlSums,out);
+
     int codeLength=0;
     int codeIndex=0;
     int bufforIndex = 0;
     char buffor[8] = {};
     int i=0;
     writeDictionary(codes,codesSize,out,compressionRatio);
+
     char *code = getCode(splittedData[i++],codes,codesSize,&codeLength);
     while(i <= dataSize){
         while(bufforIndex < 8  && codeIndex < codeLength){
@@ -149,7 +162,6 @@ void compressFile(short *splittedData,int dataSize, Output *codes, int codesSize
             codeIndex = 0;
         }
     }
-    printf("%s\n",buffor);
     if(bufforIndex!=0){
         // zostala jakas reszta nie zapisana
         for(int j=7;j>=bufforIndex;j--){
@@ -158,10 +170,10 @@ void compressFile(short *splittedData,int dataSize, Output *codes, int codesSize
         char toWrite = convertToBits(buffor, 8);
         fwrite(&toWrite,sizeof(char),1,out);
     }
-    printf("%d\n", *rest);
     // nastepna reszta ktora dostalismy ze splitowania danych
     if(*rest != 0)
         fwrite(rest,sizeof(char),1,out);
     fclose(out);
+
 }
 
