@@ -19,6 +19,7 @@ typedef struct decode_t{
 typedef struct decode_t2{
     short bits;
     int decimal_code;
+    bool exist;
 }decode_t2;
 
 int decimal_code_maker(decode_t decimal_codes){
@@ -59,21 +60,32 @@ void decoder(Output *codes, char *data, int n, int version){
         decimal_codes[i].binary_code = codes[i].code;
         decimal_codes[i].decimal_code = decimal_code_maker(decimal_codes[i]);
     }
+    int maxi = decimal_codes[0].decimal_code;
+    for(int i = 1; i < n; i++){
+        if(maxi < decimal_codes[i].decimal_code){
+            maxi = decimal_codes[i].decimal_code;
+        }
+    }
+    maxi++;
+//    printf("nasze maxi to: %d\n", maxi);
 
-    decode_t2 *final_codes = malloc(sizeof(decode_t2) * pow(2, version));
-    for(int i = 0; i < pow(2, 8); i++){
+    decode_t2 *final_codes = malloc(sizeof(decode_t2) * maxi);
+    for(int i = 0; i < maxi; i++){
         final_codes[i].bits = -1;
         final_codes[i].decimal_code = -1;
+        final_codes[i].exist = false;
     }
     for(int i = 0; i < n; i++){
-        final_codes[decimal_codes[i].decimal_code].bits = decimal_codes[i].bits;
-        final_codes[decimal_codes[i].decimal_code].decimal_code = decimal_codes[i].decimal_code;
+        if (decimal_codes[i].decimal_code >= 0 && decimal_codes[i].decimal_code < maxi) {
+            final_codes[decimal_codes[i].decimal_code].bits = decimal_codes[i].bits;
+            final_codes[decimal_codes[i].decimal_code].exist = true;
+        }
+        else {
+            printf("proba wyjscia poza tablice na kodzie decymalnym %d, a binarnym %s", decimal_codes[i].decimal_code, decimal_codes[i].binary_code);
+            return;
+        }
     }
-//    for(int i = 0; i < pow(2, 4); i++){
-//        if(final_codes[i].bits != -1){
-//            printf("bits: %d decimal_code %d \n", final_codes[i].bits, final_codes[i].decimal_code);
-//        }
-//    }
+
 
     int length = strlen(data);
     int tmp = 1;
@@ -85,8 +97,9 @@ void decoder(Output *codes, char *data, int n, int version){
             tmp = tmp * 2;
         }
 //        printf("%d ", tmp);
-        if(final_codes[tmp].bits != -1){
-            printf("%c ",final_codes[tmp].bits);
+        if(final_codes[tmp].exist == true){
+            fwrite(&final_codes[tmp].bits,1,1,out);
+//            printf("%c",final_codes[tmp].bits);
             tmp = 1;
         }
 
