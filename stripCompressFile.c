@@ -40,7 +40,17 @@ int binary_to_decimal(char* binary) {
         int bit = binary[length - i - 1] - '0';
         decimal += bit * pow(2, i);
     }
-
+    return decimal;
+}
+int binary_to_decimal_test(char *binary){
+    int length = strlen(binary);
+    int decimal = 0;
+    if(binary[0] == '1')
+        decimal = -128;
+    for (int i = 0; i < length-1; i++) {
+        int bit = binary[length - i - 1] - '0';
+        decimal += bit * pow(2, i);
+    }
     return decimal;
 }
 

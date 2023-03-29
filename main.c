@@ -13,7 +13,14 @@ int main(int argc, char**argv) {
     int size = 0;
     int compressionRatio = 8;
     char *data = readData("../Compressor-Decompressor/output.txt", &size);
-        int *controlSums;
+    // UWAZAJ U CIEBIE MOGA BYC INNE SCIEZKI DO PLIKOW
+    // JAK CHCESZ SKOMPRESOWAC TO:
+    // - ZMIENIASZ PLIK W 15 LINJCE NA TEN CO CHCESZ SKOMENTOWAC
+    // - KOMENTUJESZ OD 23 LINIJKI DO 38 (WLACZNIE).
+    // JAK CHCESZ DEKOMPRESOWAC TO:
+    // - ZMIENIASZ PLIK W 15 LINIJCE NA TEN CO CHCESZ ZDEKOMPESOWAC W NASZYM PRZYPADKU BEDZIE TO output.txt (no chyba, ze zmieniles w pliku compress.c (tam jest mozliwa zmiana)
+    // - KOMENTUJESZ OD 39 DO 46
+    int *controlSums;
     if(headerCheck(data,&size)){
         controlSums = getCompressSums(data,&size);
     }
@@ -26,32 +33,16 @@ int main(int argc, char**argv) {
     for(int i=0;i<dictionarySize;i++){
         printf("%c -> %s\n",dictionary[i].bits, dictionary[i].code);
     }
+
     char *finalData = getBitsInChar(data,&size,controlSums[1]);
     decoder(dictionary,finalData,dictionarySize,compressionRatio);
 //    char rest = 0; // reszta po podzieleniu na 12 lub 16
 //    int restBits; // ilosc bitow ile zajmuje reszta
 //    short *splittedData = splitData(data, &size, compressionRatio, &rest, &restBits);
-//    for(int i=0;i<size;i++){
-//        printf("%d ",splittedData[i]);
-//    }
-//    printf("%s\n", intToBinary(-103,8));
 //    int dataSize = size;
 //    frequency_t *freqArray = getFrequency(splittedData, &size);
 //    Output *codes = get_codes(freqArray, size);
-//    for(int i=0;i<size;i++){
-//        printf("%d -> code: %s\n", codes[i].bits , codes[i].code);
-//    }
-//    FILE *testFile = fopen("../Compressor-Decompressor/codes.txt", "w");
-//    for (int i = 0; i < size; i++) {
-//        fputc(codes[i].bits, testFile);
-//        fputc(' ', testFile);
-//        for (int j = 0; j < strlen(codes[i].code); j++) {
-//            fputc(codes[i].code[j], testFile);
-//        }
-//        fputc('\n', testFile);
-//    }
 //    controlSums_t * controlSums = getControlSums(compressionRatio, freqArray, codes, size, restBits);
-//
 //    compressFile(splittedData,dataSize,codes,size,&rest, controlSums,compressionRatio);
     return 0;
 }

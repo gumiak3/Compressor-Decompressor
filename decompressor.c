@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <math.h>
+#include <stdint-gcc.h>
 #include "decompressor.h"
 //typedef struct input{
 //    short bits;
@@ -85,10 +86,7 @@ void decoder(Output *codes, char *data, int n, int version){
         }
 //        printf("%d ", tmp);
         if(final_codes[tmp].bits != -1){
-//            printf("%d", final_codes[tmp].bits);
-            char toWrite = final_codes[tmp].bits;
-            printf("%c",toWrite);
-            fwrite(&toWrite,sizeof(char),1,out);
+            printf("%c ",final_codes[tmp].bits);
             tmp = 1;
         }
 
