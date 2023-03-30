@@ -42,13 +42,13 @@ void make_tree( frequency_t *freqArray, struct Node *leafs, struct Node *nodes, 
     }
     int mini1, mini2;
     while(k>1){
-        mini1 = -1;
-        mini2 = -1;
+        mini1 = -200;
+        mini2 = -200;
         for(int i = 0; i < n; i++){
             if(leafs[i].been == false){
-                if(mini1 == -1)
+                if(mini1 == -200)
                     mini1 = i;
-                else if(mini2 == -1)
+                else if(mini2 == -200)
                     mini2 = i;
                 else if(leafs[i].frequency < leafs[mini1].frequency || leafs[i].frequency < leafs[mini2].frequency){
                     if(leafs[mini1].frequency < leafs[mini2].frequency){
@@ -101,7 +101,7 @@ void dfs(struct Node *root, int tmp_code, struct Output_tmp *codes, int *ile){
         codes[*(ile)].bits = root->bits;
     }
     else{
-        codes[*(ile)].bits = -1;
+        codes[*(ile)].bits = -200;
     }
     (*ile)++;
     // printf("obecny kod: %d obecny bits: %d\n", tmp_code, root->bits);
@@ -117,7 +117,7 @@ void dfs(struct Node *root, int tmp_code, struct Output_tmp *codes, int *ile){
 void only_leaves(struct Output_tmp *codes_first, struct Output_tmp *codes_second, int k){
     int j = 0;
     for(int i = 0; i < k; i++){
-        if(codes_first[i].bits != -1){
+        if(codes_first[i].bits != -200){
             codes_second[j].bits = codes_first[i].bits;
             codes_second[j].code = codes_first[i].code;
             j++;

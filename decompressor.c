@@ -52,7 +52,7 @@ int to_decimal(int n)
 }
 
 void decoder(Output *codes, char *data, int n, int version){
-    FILE *out = fopen("../Compressor-Decompressor/testowy_output.txt","wb");
+    FILE *out = fopen("../Compressor-Decompressor/testowy_output.png","wb");
     decode_t *decimal_codes= malloc(sizeof(decode_t) * n);
 
     for(int i = 0; i < n; i++){

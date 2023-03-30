@@ -35,10 +35,10 @@ char *intToBinary(int number, int length){
     return output;
 }
 
-char * getCode(short bits, Output *codes, int size, int *codeLength){
+char * getCode(short bits, Output *codes, int size){
     for(int i=0;i<size;i++){
         if(bits==codes[i].bits){
-            *codeLength = strlen(codes[i].code);
+//            *codeLength = strlen(codes[i].code);
             return codes[i].code;
         }
     }
@@ -131,7 +131,17 @@ void writeDictionary(Output *codes, int size, FILE *out,int compressionRatio){
     }
 
 }
-
+int string_length(char *str) {
+    if (str == NULL) {
+        return 0; // handle null pointer case
+    }
+    int length = 0;
+    while (*str != '\0') {
+        length++;
+        str++;
+    }
+    return length;
+}
 void compressFile(short *splittedData,int dataSize, Output *codes, int codesSize, char *rest, controlSums_t *controlSums, int compressionRatio){
     FILE *out = fopen("../Compressor-Decompressor/output.txt", "wb");
     writeHeadline("#LP#",out);
@@ -145,7 +155,8 @@ void compressFile(short *splittedData,int dataSize, Output *codes, int codesSize
     int i=0;
     writeDictionary(codes,codesSize,out,compressionRatio);
 
-    char *code = getCode(splittedData[i++],codes,codesSize,&codeLength);
+    char *code = getCode(splittedData[i++],codes,codesSize);
+    codeLength = string_length(code);
     while(i <= dataSize){
         while(bufforIndex < 8  && codeIndex < codeLength){
             buffor[bufforIndex++] = code[codeIndex++];
@@ -158,7 +169,8 @@ void compressFile(short *splittedData,int dataSize, Output *codes, int codesSize
         }
         if(codeIndex == codeLength){
             // bierzemy nowy kod
-            code = getCode(splittedData[i++],codes,codesSize,&codeLength);
+            code = getCode(splittedData[i++],codes,codesSize);
+            codeLength = string_length(code);
             codeIndex = 0;
         }
     }
