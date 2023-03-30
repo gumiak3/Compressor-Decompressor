@@ -6,12 +6,13 @@ void clearArray(frequency_t *array, int size){
     for(int i=0;i<size;i++){
         array[i].bits = 0;
         array[i].frequency = 0;
+        array[i].isTrue = 0;
     }
 }
 
 int contains(frequency_t * array, short newElement, int size){
     for(int i=0;i<size;i++){
-        if(array[i].bits)
+        if(array[i].isTrue)
             if(array[i].bits == newElement)
                 return i;
     }
@@ -26,6 +27,7 @@ frequency_t * getFrequency(short *data, int *size){
         if( contains(frequencyArray,data[i],*size) != (-1)){
             frequencyArray[contains(frequencyArray,data[i],*size)].frequency++;
         }else{
+            frequencyArray[index].isTrue = 1;
             frequencyArray[index].bits = data[i];
             frequencyArray[index].frequency = 1;
             index++;

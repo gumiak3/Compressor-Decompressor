@@ -4,6 +4,7 @@
 typedef struct frequency_t{
     short bits;
     int frequency;
+    int isTrue;
 }frequency_t;
 
 frequency_t * getFrequency(short *data, int *size);

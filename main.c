@@ -12,7 +12,7 @@
 int main(int argc, char**argv) {
     int size = 0;
     int compressionRatio = 8;
-    int dekompres = 1;
+    int dekompres = 0;
     // UWAZAJ U CIEBIE MOGA BYC INNE SCIEZKI DO PLIKOW
     // JAK CHCESZ SKOMPRESOWAC TO:
     // - ZMIENIASZ PLIK W 15 LINJCE NA TEN CO CHCESZ SKOMENTOWAC
@@ -40,7 +40,7 @@ int main(int argc, char**argv) {
         decoder(dictionary, finalData, dictionarySize, compressionRatio);
         }
     else{
-        char *data = readData("test2.txt", &size);
+        char *data = readData("../Compressor-Decompressor/t.jpg", &size);
         char rest = 0; // reszta po podzieleniu na 12 lub 16
         int restBits; // ilosc bitow ile zajmuje reszta
         short *splittedData = splitData(data, &size, compressionRatio, &rest, &restBits);
