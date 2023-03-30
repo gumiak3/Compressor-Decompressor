@@ -12,7 +12,7 @@
 int main(int argc, char**argv) {
     int size = 0;
     int compressionRatio = 8;
-    int dekompres = 0;
+    int dekompres = 1;
     // UWAZAJ U CIEBIE MOGA BYC INNE SCIEZKI DO PLIKOW
     // JAK CHCESZ SKOMPRESOWAC TO:
     // - ZMIENIASZ PLIK W 15 LINJCE NA TEN CO CHCESZ SKOMENTOWAC
