@@ -5,10 +5,31 @@
 #include <math.h>
 #include <stdint-gcc.h>
 #include "decompressor.h"
-//typedef struct input{
-//    short bits;
-//    char *code;
-//}input;
+
+
+void write8Bits(short *bits, FILE *out){
+    fwrite(bits,1,1,out);
+}
+void write12Bits(short *bits, FILE *out){
+    // still working on it
+}
+void write16Bits(short *bits, FILE *out){
+    short swapped = ((*bits & 0xFF) << 8) | ((*bits >> 8) & 0xFF); // bitwise operations to swap the bits
+    fwrite(&swapped,sizeof(short),1,out);
+}
+void writeToFile(short *bits, FILE *out, int compressionRatio){
+    switch(compressionRatio){
+        case 8:
+            write8Bits(bits,out);
+            break;
+        case 12:
+            write12Bits(bits,out);
+            break;
+        case 16:
+            write16Bits(bits,out);
+            break;
+    }
+}
 
 typedef struct decode_t{
     short bits;
@@ -51,8 +72,8 @@ int to_decimal(int n)
     return decimalNumber;
 }
 
-void decoder(Output *codes, char *data, int n, int version){
-    FILE *out = fopen("../Compressor-Decompressor/testowy_output.png","wb");
+void decoder(Output *codes, char *data, int n, int version, char *rest2){
+    FILE *out = fopen("../Compressor-Decompressor/testowy_output.txt","wb");
     decode_t *decimal_codes= malloc(sizeof(decode_t) * n);
 
     for(int i = 0; i < n; i++){
@@ -96,42 +117,14 @@ void decoder(Output *codes, char *data, int n, int version){
         else{
             tmp = tmp * 2;
         }
-//        printf("%d ", tmp);
         if(final_codes[tmp].exist == true){
-            fwrite(&final_codes[tmp].bits,1,1,out);
+            writeToFile(&final_codes[tmp].bits,out,version);
 //            printf("%c",final_codes[tmp].bits);
             tmp = 1;
         }
-
     }
-//    printf("\n");
-//    printf("%d\n",n);
-//    for(int i = 0; i < n; i++){
-//        printf("bits: %d binary_code: %s decimal_code %d \n", decimal_codes[i].bits, decimal_codes[i].binary_code, decimal_codes[i].decimal_code);
-//    }
+    if(*rest2)
+        fwrite(rest2,sizeof(char),1,out);
+
 }
 
-
-//int main(int argc, char **argv) {
-//    int n = 3;
-//    struct input *codes = malloc(sizeof(input) * n);
-//    codes[0].bits = 97;
-//    codes[0].code = "01";
-//    codes[1].bits = 98;
-//    codes[1].code = "00";
-//    codes[2].bits = 99;
-//    codes[2].code = "1";
-//    int version = 8;
-////    for(int i = 0; i < n; i++){
-////        printf("index: %d, bits: %d, code: %s\n", i, codes[i].bits, codes[i].code);
-////    }
-//    char *data;
-//    data = malloc(86 * sizeof(char)) ;
-//    if (data == NULL) {
-//        printf("Error: memory allocation failed");
-//        exit(1);
-//    }
-//    strcpy(data, "01001");
-//    decoder(codes, data, n, version);
-//    //    printf("%s\n", data);
-//}

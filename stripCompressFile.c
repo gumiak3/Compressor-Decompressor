@@ -130,10 +130,11 @@ Output * getDictionary(char *data, int *size, int compressionRatio, int *diction
 char *getBitsInChar(char *data, int *size, int rest){
     int numberOfBitsToRead;
     if(rest>0){
-        numberOfBitsToRead = *size * 8 - (8-rest); // cos tu zle
+        numberOfBitsToRead = *size * 8 - (8-rest);
     }else{
         numberOfBitsToRead = *size*8;
     }
+
     int helper = numberOfBitsToRead;
     char *output = malloc(sizeof(*output)*(numberOfBitsToRead * 2));
     int i=0;
