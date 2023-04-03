@@ -1,7 +1,3 @@
-//
-// Created by pawel on 20/03/2023.
-//
-
 #ifndef COMPRESSOR_DECOMPRESSOR_TREE_H
 #define COMPRESSOR_DECOMPRESSOR_TREE_H
 #include "frequency.h"

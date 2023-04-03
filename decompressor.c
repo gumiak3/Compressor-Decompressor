@@ -7,6 +7,18 @@
 #include "decompressor.h"
 
 
+typedef struct decode_t{
+    short bits;
+    int decimal_code;
+    char *binary_code;
+} decode_t;
+
+typedef struct decode_t2{
+    short bits;
+    bool exist;
+}decode_t2;
+
+
 void write8Bits(short *bits, FILE *out){
     fwrite(bits,1,1,out);
 }
@@ -45,21 +57,9 @@ void writeToFile(short *bits, FILE *out, int compressionRatio, unsigned char *bu
     }
 }
 
-typedef struct decode_t{
-    short bits;
-    int decimal_code;
-    char *binary_code;
-} decode_t;
-
-typedef struct decode_t2{
-    short bits;
-    int decimal_code;
-    bool exist;
-}decode_t2;
 
 int decimal_code_maker(decode_t decimal_codes){
     int length = strlen(decimal_codes.binary_code);
-    char *tmp = malloc(sizeof(char) * length);
     int tmp_code = 1;
     for(int i = 0; i < length; i++){
         if(decimal_codes.binary_code[i] == '1'){
@@ -73,21 +73,9 @@ int decimal_code_maker(decode_t decimal_codes){
     return tmp_code;
 }
 
-int to_decimal(int n)
-{
-    int decimalNumber = 0, i = 0, reszta;
-    while (n!=0)
-    {
-        reszta = n%10;
-        n /= 10;
-        decimalNumber += reszta*pow(2,i);
-        ++i;
-    }
-    return decimalNumber;
-}
 
 void decoder(Output *codes, char *data, int n, int version, char *rest2, int restControl){
-    FILE *out = fopen("../Compressor-Decompressor/testowy_output.png","wb");
+    FILE *out = fopen("../Compressor-Decompressor/testowy_output.txt","wb");
     decode_t *decimal_codes= malloc(sizeof(decode_t) * n);
 
     for(int i = 0; i < n; i++){
@@ -102,12 +90,11 @@ void decoder(Output *codes, char *data, int n, int version, char *rest2, int res
         }
     }
     maxi++;
-//    printf("nasze maxi to: %d\n", maxi);
+    printf("nasze maxi to: %d\n", maxi);
 
     decode_t2 *final_codes = malloc(sizeof(decode_t2) * maxi);
     for(int i = 0; i < maxi; i++){
-        final_codes[i].bits = -1;
-        final_codes[i].decimal_code = -1;
+        final_codes[i].bits = -200;
         final_codes[i].exist = false;
     }
     for(int i = 0; i < n; i++){
@@ -116,7 +103,7 @@ void decoder(Output *codes, char *data, int n, int version, char *rest2, int res
             final_codes[decimal_codes[i].decimal_code].exist = true;
         }
         else {
-            printf("proba wyjscia poza tablice na kodzie decymalnym %d, a binarnym %s", decimal_codes[i].decimal_code, decimal_codes[i].binary_code);
+            printf("out of bounds at decimal code &d, binary code %d", decimal_codes[i].decimal_code, decimal_codes[i].binary_code);
             return;
         }
     }
