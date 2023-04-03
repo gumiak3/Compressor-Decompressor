@@ -8,7 +8,7 @@ short *splitTo8(char *data, int *size, char *rest){
     }
     return outputData;
 }
-short *splitTo12(char *data, int *size,int *newSize,char *rest, int *restBits){
+short *splitTo12(unsigned char *data, int *size,int *newSize,char *rest, int *restBits){
     *newSize = ((*size) * 8 )/12;
     short *outputData = malloc(sizeof(*outputData) * (*newSize));
     int index = 0;
@@ -37,14 +37,17 @@ short *splitTo12(char *data, int *size,int *newSize,char *rest, int *restBits){
     *restBits = numberOfRest;
     return outputData;
 }
-short *splitTo16(char *data, int *size, int *newSize,char *rest, int *restBits){
+short *splitTo16(unsigned char *data, int *size, int *newSize,unsigned char *rest, int *restBits){
     int mask = 0x00FF; // to extract useless 1
     *newSize = ((*size) * 8)/16;
     short *outputData = malloc(sizeof(*outputData) * *newSize);
     int index = 0;
     int length = *size%2==0 ? *size : *size-1;
     for(int i=0;i<length;i+=2){
-        outputData[index++] = (data[i] << 8) | (data[i+1]);
+        outputData[index] = data[i];
+        outputData[index] = (outputData[index] <<  8);
+        outputData[index] |= data[i+1];
+        index++;
     }
     if((*size)%2!=0){
         *rest = data[*size-1];
@@ -56,7 +59,7 @@ short *splitTo16(char *data, int *size, int *newSize,char *rest, int *restBits){
     return outputData;
 }
 
-short *splitData(char *data, int *size,int bitsToRead, char *rest, int *restBits){
+short *splitData(unsigned char *data, int *size,int bitsToRead, unsigned char *rest, int *restBits){
     short *splittedData;
     int newSize = 0;
     switch(bitsToRead){

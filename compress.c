@@ -35,6 +35,7 @@ char *intToBinary(int number, int length){
     return output;
 }
 
+
 char * getCode(short bits, Output *codes, int size){
     for(int i=0;i<size;i++){
         if(bits==codes[i].bits){
@@ -145,16 +146,13 @@ int string_length(char *str) {
 void compressFile(short *splittedData,int dataSize, Output *codes, int codesSize, char *rest, controlSums_t *controlSums, int compressionRatio){
     FILE *out = fopen("../Compressor-Decompressor/output.txt", "wb");
     writeHeadline("#LP#",out);
-
     writeControlSumToFile(controlSums,out);
-
     int codeLength=0;
     int codeIndex=0;
     int bufforIndex = 0;
     char buffor[8] = {};
     int i=0;
     writeDictionary(codes,codesSize,out,compressionRatio);
-
     char *code = getCode(splittedData[i++],codes,codesSize);
     codeLength = string_length(code);
     while(i <= dataSize){

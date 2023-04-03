@@ -4,14 +4,13 @@
 #include "frequency.h"
 #include "tree.h"
 #include "compress.h"
-#include <string.h>
 #include "sumController.h"
 #include "stripCompressFile.h"
 #include "decompressor.h"
 
 int main(int argc, char**argv) {
     int size = 0;
-    int compressionRatio = 8;
+    int compressionRatio = 12;
     int dekompres = 1;
     // UWAZAJ U CIEBIE MOGA BYC INNE SCIEZKI DO PLIKOW
     // JAK CHCESZ SKOMPRESOWAC TO:
@@ -21,26 +20,28 @@ int main(int argc, char**argv) {
     // - ZMIENIASZ PLIK W 15 LINIJCE NA TEN CO CHCESZ ZDEKOMPESOWAC W NASZYM PRZYPADKU BEDZIE TO output.txt (no chyba, ze zmieniles w pliku compress.c (tam jest mozliwa zmiana)
     // - KOMENTUJESZ OD 39 DO 46
     if(dekompres){
-        char *data = readData("../Compressor-Decompressor/output.txt", &size);
+        unsigned char *data = readData("../Compressor-Decompressor/output.txt", &size);
         int *controlSums;
         if (headerCheck(data, &size)) {
             controlSums = getCompressSums(data, &size);
         }
+        char rest2 = 0;
         if (controlSums[2] != 0) {
+            rest2 = data[size-1];
             size--; // jeżeli zostaje reszta, którą nie kompresujemy
         }
+
         int dictionarySize = 0;
 
         Output *dictionary = getDictionary(data, &size, compressionRatio, &dictionarySize);
-//        for (int i = 0; i < dictionarySize; i++) {
-//            printf("%c -> %s\n", dictionary[i].bits, dictionary[i].code);
-//        }
-
+        char restToWrite = 0;
         char *finalData = getBitsInChar(data, &size, controlSums[1]);
-        decoder(dictionary, finalData, dictionarySize, compressionRatio);
+        decoder(dictionary, finalData, dictionarySize, compressionRatio,&rest2,controlSums[2]);
+//        FILE *out = fopen("../Compressor-Decompressor/testowy_output.txt","wb");
+//        fwrite(&rest2,sizeof(char),1,out);
         }
     else{
-        char *data = readData("../Compressor-Decompressor/widok.png", &size);
+        unsigned char *data = readData("../Compressor-Decompressor/widok.png", &size);
         char rest = 0; // reszta po podzieleniu na 12 lub 16
         int restBits; // ilosc bitow ile zajmuje reszta
         short *splittedData = splitData(data, &size, compressionRatio, &rest, &restBits);
