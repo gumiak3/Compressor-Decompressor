@@ -8,7 +8,7 @@ short *splitTo8(char *data, int *size, char *rest){
     }
     return outputData;
 }
-short *splitTo12(char *data, int *size,int *newSize,char *rest, int *restBits){
+short *splitTo12(unsigned char *data, int *size,int *newSize,char *rest, int *restBits){
     *newSize = ((*size) * 8 )/12;
     short *outputData = malloc(sizeof(*outputData) * (*newSize));
     int index = 0;

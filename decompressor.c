@@ -10,20 +10,34 @@
 void write8Bits(short *bits, FILE *out){
     fwrite(bits,1,1,out);
 }
-void write12Bits(short *bits, FILE *out){
+void write12Bits(short *bits, FILE *out, unsigned char *buffor, int *bufforIndex){
     // still working on it
+    if(*bufforIndex==0){
+        // przesuwamy w prawo, wpisujemy do pliku, a nastepnie reszta ktora zostala zapisujemy do buffora i zmieniamy index na 4
+        short toWrite = (*bits >> 4) & 0x00FF;
+        *buffor = (*bits << 4);
+        write8Bits(&toWrite,out);
+        *bufforIndex = 4;
+    }else{
+        // bierzemy z buffora 4, dokladamy do buffora nastepna 4, wpisujemy buffor do pliku, a nastepnie 8 bitow ktore zostalo
+        short toWrite = *buffor | ((*bits >> 8) & 0x00FF);
+        write8Bits(&toWrite,out);
+        write8Bits(bits,out);
+        *bufforIndex = 0;
+    }
+
 }
 void write16Bits(short *bits, FILE *out){
     short swapped = ((*bits & 0xFF) << 8) | ((*bits >> 8) & 0xFF); // bitwise operations to swap the bits
     fwrite(&swapped,sizeof(short),1,out);
 }
-void writeToFile(short *bits, FILE *out, int compressionRatio){
+void writeToFile(short *bits, FILE *out, int compressionRatio, unsigned char *buffor, int *bufforIndex){
     switch(compressionRatio){
         case 8:
             write8Bits(bits,out);
             break;
         case 12:
-            write12Bits(bits,out);
+            write12Bits(bits,out,buffor, bufforIndex);
             break;
         case 16:
             write16Bits(bits,out);
@@ -72,8 +86,8 @@ int to_decimal(int n)
     return decimalNumber;
 }
 
-void decoder(Output *codes, char *data, int n, int version, char *rest2){
-    FILE *out = fopen("../Compressor-Decompressor/testowy_output.txt","wb");
+void decoder(Output *codes, char *data, int n, int version, char *rest2, int restControl){
+    FILE *out = fopen("../Compressor-Decompressor/testowy_output.png","wb");
     decode_t *decimal_codes= malloc(sizeof(decode_t) * n);
 
     for(int i = 0; i < n; i++){
@@ -107,7 +121,8 @@ void decoder(Output *codes, char *data, int n, int version, char *rest2){
         }
     }
 
-
+    unsigned char buffor;
+    int bufforIndex = 0;
     int length = strlen(data);
     int tmp = 1;
     for(int i = 0; i < length; i++){
@@ -118,13 +133,18 @@ void decoder(Output *codes, char *data, int n, int version, char *rest2){
             tmp = tmp * 2;
         }
         if(final_codes[tmp].exist == true){
-            writeToFile(&final_codes[tmp].bits,out,version);
-//            printf("%c",final_codes[tmp].bits);
+            writeToFile(&final_codes[tmp].bits,out,version,&buffor, &bufforIndex);
             tmp = 1;
         }
     }
-    if(*rest2)
-        fwrite(rest2,sizeof(char),1,out);
+    switch(restControl){
+        case 4:
+            buffor |= (*rest2 & 0x000F);
+            break;
+        case 8:
+            write8Bits(rest2,out);
+            break;
+    }
 
 }
 

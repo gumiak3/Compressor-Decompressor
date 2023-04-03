@@ -10,7 +10,7 @@
 
 int main(int argc, char**argv) {
     int size = 0;
-    int compressionRatio = 16;
+    int compressionRatio = 12;
     int dekompres = 1;
     // UWAZAJ U CIEBIE MOGA BYC INNE SCIEZKI DO PLIKOW
     // JAK CHCESZ SKOMPRESOWAC TO:
@@ -21,7 +21,6 @@ int main(int argc, char**argv) {
     // - KOMENTUJESZ OD 39 DO 46
     if(dekompres){
         unsigned char *data = readData("../Compressor-Decompressor/output.txt", &size);
-
         int *controlSums;
         if (headerCheck(data, &size)) {
             controlSums = getCompressSums(data, &size);
@@ -35,25 +34,20 @@ int main(int argc, char**argv) {
         int dictionarySize = 0;
 
         Output *dictionary = getDictionary(data, &size, compressionRatio, &dictionarySize);
-//        for (int i = 0; i < dictionarySize; i++) {
-//            printf("%c -> %s\n", dictionary[i].bits, dictionary[i].code);
-//        }
         char restToWrite = 0;
         char *finalData = getBitsInChar(data, &size, controlSums[1]);
-        decoder(dictionary, finalData, dictionarySize, compressionRatio,&rest2);
+        decoder(dictionary, finalData, dictionarySize, compressionRatio,&rest2,controlSums[2]);
 //        FILE *out = fopen("../Compressor-Decompressor/testowy_output.txt","wb");
 //        fwrite(&rest2,sizeof(char),1,out);
         }
     else{
-        unsigned char *data = readData("../Compressor-Decompressor/test.txt", &size);
+        unsigned char *data = readData("../Compressor-Decompressor/widok.png", &size);
         char rest = 0; // reszta po podzieleniu na 12 lub 16
         int restBits; // ilosc bitow ile zajmuje reszta
         short *splittedData = splitData(data, &size, compressionRatio, &rest, &restBits);
         int dataSize = size;
         frequency_t *freqArray = getFrequency(splittedData, &size);
         Output *codes = get_codes(freqArray, size);
-//        for(int i=0;i<size;i++)
-//            printf("%d\n",codes[i].bits);
         controlSums_t * controlSums = getControlSums(compressionRatio, freqArray, codes, size, restBits);
         compressFile(splittedData,dataSize,codes,size,&rest, controlSums,compressionRatio);
     }
