@@ -6,22 +6,17 @@
 #include <stdint-gcc.h>
 #include "decompressor.h"
 
-
-typedef struct decode_t{
+typedef struct Node{
     short bits;
-    int decimal_code;
-    char *binary_code;
-} decode_t;
-
-typedef struct decode_t2{
-    short bits;
-    bool exist;
-}decode_t2;
-
+    struct Node *left;
+    struct Node *right;
+    bool is_leaf;
+} Node;
 
 void write8Bits(short *bits, FILE *out){
     fwrite(bits,1,1,out);
 }
+
 void write12Bits(short *bits, FILE *out, unsigned char *buffor, int *bufforIndex){
     // still working on it
     if(*bufforIndex==0){
@@ -39,10 +34,12 @@ void write12Bits(short *bits, FILE *out, unsigned char *buffor, int *bufforIndex
     }
 
 }
+
 void write16Bits(short *bits, FILE *out){
     short swapped = ((*bits & 0xFF) << 8) | ((*bits >> 8) & 0xFF); // bitwise operations to swap the bits
     fwrite(&swapped,sizeof(short),1,out);
 }
+
 void writeToFile(short *bits, FILE *out, int compressionRatio, unsigned char *buffor, int *bufforIndex){
     switch(compressionRatio){
         case 8:
@@ -57,73 +54,61 @@ void writeToFile(short *bits, FILE *out, int compressionRatio, unsigned char *bu
     }
 }
 
-
-int decimal_code_maker(decode_t decimal_codes){
-    int length = strlen(decimal_codes.binary_code);
-    int tmp_code = 1;
-    for(int i = 0; i < length; i++){
-        if(decimal_codes.binary_code[i] == '1'){
-            tmp_code = tmp_code * 2 + 1;
-        }
-        else{
-            tmp_code = tmp_code * 2;
-        }
-    }
-//    printf("%d\n", tmp_code);
-    return tmp_code;
-}
-
-
 void decoder(Output *codes, char *data, int n, int version, char *rest2, int restControl){
+
     FILE *out = fopen("../Compressor-Decompressor/testowy_output.txt","wb");
-    decode_t *decimal_codes= malloc(sizeof(decode_t) * n);
+
+    Node *root = malloc(sizeof(Node));
+    root->left = NULL;
+    root->right = NULL;
+    root->is_leaf = false;
 
     for(int i = 0; i < n; i++){
-        decimal_codes[i].bits = codes[i].bits;
-        decimal_codes[i].binary_code = codes[i].code;
-        decimal_codes[i].decimal_code = decimal_code_maker(decimal_codes[i]);
-    }
-    int maxi = decimal_codes[0].decimal_code;
-    for(int i = 1; i < n; i++){
-        if(maxi < decimal_codes[i].decimal_code){
-            maxi = decimal_codes[i].decimal_code;
+        Node *tmp = root;
+        int code_length = strlen(codes[i].code);
+        for(int j = 0; j < code_length; j++){
+            if(codes[i].code[j] == '0'){
+                if(tmp->left == NULL){
+                    tmp->left = malloc(sizeof(Node));
+                    tmp->left->left = NULL;
+                    tmp->left->right = NULL;
+                    tmp->left->is_leaf = false;
+                }
+                tmp = tmp->left;
+            }
+            else{
+                if(tmp->right == NULL){
+                    tmp->right = malloc(sizeof(Node));
+                    tmp->right->left = NULL;
+                    tmp->right->right = NULL;
+                    tmp->right->is_leaf = false;
+                }
+                tmp = tmp->right;
+            }
         }
+        tmp->bits = codes[i].bits;
+        tmp->is_leaf = true;
     }
-    maxi++;
-    printf("nasze maxi to: %d\n", maxi);
 
-    decode_t2 *final_codes = malloc(sizeof(decode_t2) * maxi);
-    for(int i = 0; i < maxi; i++){
-        final_codes[i].bits = -200;
-        final_codes[i].exist = false;
-    }
-    for(int i = 0; i < n; i++){
-        if (decimal_codes[i].decimal_code >= 0 && decimal_codes[i].decimal_code < maxi) {
-            final_codes[decimal_codes[i].decimal_code].bits = decimal_codes[i].bits;
-            final_codes[decimal_codes[i].decimal_code].exist = true;
-        }
-        else {
-            printf("out of bounds at decimal code &d, binary code %d", decimal_codes[i].decimal_code, decimal_codes[i].binary_code);
-            return;
-        }
-    }
 
     unsigned char buffor;
     int bufforIndex = 0;
     int length = strlen(data);
-    int tmp = 1;
+    Node *current = root;
+
     for(int i = 0; i < length; i++){
-        if(data[i] == '1'){
-            tmp = tmp * 2 + 1;
+        if(data[i] == '0'){
+            current = current->left;
         }
         else{
-            tmp = tmp * 2;
+            current = current->right;
         }
-        if(final_codes[tmp].exist == true){
-            writeToFile(&final_codes[tmp].bits,out,version,&buffor, &bufforIndex);
-            tmp = 1;
+        if(current->is_leaf == true){
+            writeToFile(&current->bits,out,version,&buffor,&bufforIndex);
+            current = root;
         }
     }
+
     switch(restControl){
         case 4:
             buffor |= (*rest2 & 0x000F);
