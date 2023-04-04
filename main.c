@@ -17,6 +17,7 @@ int main(int argc, char**argv) {
 //    UWAGA!!!
 //    WARTOŚCI DO ZMIENNYCH compressionRatio I dekompres MOŻESZ ZMIENIĆ W LINIJCE 123 I 124
 //    INICJALIZUJE JE TUTAJ, ŻEBY FLAGI (JEŻELI SĄ) NADPISAŁY TE WARTOŚCI, BO INACZEJ NIE SKOMPILUJE SIĘ
+    /*
     int compressionRatio;
     int dekompres;
 
@@ -119,19 +120,11 @@ int main(int argc, char**argv) {
     else if(compress_mode + decompress_mode == 0) {
         //tutaj trzeba zrobic jakies czytanie z pliku i sprawdzanie czy jest tam kompres czy dekompres
     }
-
-    compressionRatio = 12;
-    dekompres = 1;
-
-    // UWAZAJ U CIEBIE MOGA BYC INNE SCIEZKI DO PLIKOW
-    // JAK CHCESZ SKOMPRESOWAC TO:
-    // - ZMIENIASZ PLIK W 15 LINJCE NA TEN CO CHCESZ SKOMENTOWAC
-    // - KOMENTUJESZ OD 23 LINIJKI DO 38 (WLACZNIE).
-    // JAK CHCESZ DEKOMPRESOWAC TO:
-    // - ZMIENIASZ PLIK W 15 LINIJCE NA TEN CO CHCESZ ZDEKOMPESOWAC W NASZYM PRZYPADKU BEDZIE TO output.txt (no chyba, ze zmieniles w pliku compress.c (tam jest mozliwa zmiana)
-    // - KOMENTUJESZ OD 39 DO 46
+    */
+    int compressionRatio = 8;
+    int dekompres = 1;
     if(dekompres){
-        unsigned char *data = readData("../Compressor-Decompressor/output.txt", &size);
+        unsigned char *data = readData("output.txt", &size);
         int *controlSums;
         if (headerCheck(data, &size)) {
             controlSums = getCompressSums(data, &size);
@@ -148,11 +141,9 @@ int main(int argc, char**argv) {
         char restToWrite = 0;
         char *finalData = getBitsInChar(data, &size, controlSums[1]);
         decoder(dictionary, finalData, dictionarySize, compressionRatio,&rest2,controlSums[2]);
-//        FILE *out = fopen("../Compressor-Decompressor/testowy_output.txt","wb");
-//        fwrite(&rest2,sizeof(char),1,out);
         }
     else{
-        unsigned char *data = readData("../Compressor-Decompressor/test.txt", &size);
+        unsigned char *data = readData("test.txt", &size);
         char rest = 0; // reszta po podzieleniu na 12 lub 16
         int restBits; // ilosc bitow ile zajmuje reszta
         short *splittedData = splitData(data, &size, compressionRatio, &rest, &restBits);
@@ -162,8 +153,8 @@ int main(int argc, char**argv) {
         controlSums_t * controlSums = getControlSums(compressionRatio, freqArray, codes, size, restBits);
         compressFile(splittedData,dataSize,codes,size,&rest, controlSums,compressionRatio);
     }
-    if(info_needed){
-        //tutaj trzeba zrobic jakies wyswietlanie info o kompresji/dekompresji, np jakis procent
-    }
+//    if(info_needed){
+//        //tutaj trzeba zrobic jakies wyswietlanie info o kompresji/dekompresji, np jakis procent
+//    }
     return 0;
 }

@@ -90,7 +90,6 @@ void decoder(Output *codes, char *data, int n, int version, char *rest2, int res
         }
     }
     maxi++;
-    printf("nasze maxi to: %d\n", maxi);
 
     decode_t2 *final_codes = malloc(sizeof(decode_t2) * maxi);
     for(int i = 0; i < maxi; i++){
@@ -103,7 +102,7 @@ void decoder(Output *codes, char *data, int n, int version, char *rest2, int res
             final_codes[decimal_codes[i].decimal_code].exist = true;
         }
         else {
-            printf("out of bounds at decimal code &d, binary code %d", decimal_codes[i].decimal_code, decimal_codes[i].binary_code);
+            //printf("out of bounds at decimal code &d, binary code %d", decimal_codes[i].decimal_code, decimal_codes[i].binary_code);
             return;
         }
     }
@@ -129,7 +128,7 @@ void decoder(Output *codes, char *data, int n, int version, char *rest2, int res
             buffor |= (*rest2 & 0x000F);
             break;
         case 8:
-            write8Bits(rest2,out);
+            write8Bits((short*)rest2,out);
             break;
     }
 

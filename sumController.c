@@ -10,6 +10,15 @@ int getCodeLength(short bits, Output *codes, int size, int *codeLength){
     }
     return 0;
 }
+char * reverseArray(char *array){
+    char *temp = malloc(sizeof(*temp) * 8);
+    int j=0;
+    temp[strlen(array)] = '\0';
+    for(int i=strlen(array)-1;i>=0;i--){
+        temp[i] = array[j++];
+    }
+    return temp;
+}
 char * toBinary(int number){
     char *output = malloc(sizeof(*output) * 8);
     int i = 0;
@@ -18,7 +27,7 @@ char * toBinary(int number){
         number /= 2;
     }
     output[i] = '\0';
-    return strrev(output); // reversing the array
+    return reverseArray(output); // reversing the array
 }
 
 int getControlSumOfCodeRest(frequency_t *frequency, Output *codes, int size,int numberOfBitsToRead){ // liczy ile bitow czytamy z reszty, która wypada podczas wpisywania bitow do pliku
@@ -32,6 +41,7 @@ int getControlSumOfCodeRest(frequency_t *frequency, Output *codes, int size,int 
 
 
 controlSums_t *getControlSums(int compressionRatio,frequency_t *frequency, Output *codes, int size, int restBits){
+
     controlSums_t *sums = malloc(sizeof(*sums) * 3);
     sums[0].binaryRepresentation = toBinary(compressionRatio);
     sums[1].binaryRepresentation = toBinary(getControlSumOfCodeRest(frequency,codes,size,compressionRatio));
