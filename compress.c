@@ -143,8 +143,7 @@ int string_length(char *str) {
     }
     return length;
 }
-void compressFile(short *splittedData,int dataSize, Output *codes, int codesSize, char *rest, controlSums_t *controlSums, int compressionRatio){
-    FILE *out = fopen("../Compressor-Decompressor/output.txt", "wb");
+void compressFile(short *splittedData,int dataSize, Output *codes, int codesSize, char *rest, controlSums_t *controlSums, int compressionRatio, FILE *out){
     writeHeadline("#LP#",out);
     writeControlSumToFile(controlSums,out);
     int codeLength=0;

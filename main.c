@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <getopt.h>
-
+#include <string.h>
 #include "dataReader.h"
 #include "splitData.h"
 #include "frequency.h"
@@ -10,17 +10,47 @@
 #include "stripCompressFile.h"
 #include "decompressor.h"
 
+void compressMode(unsigned char *data,int compressionRatio, int *size, FILE *out){
+    char rest = 0; // reszta po podzieleniu na 12 lub 16
+    int restBits; // ilosc bitow ile zajmuje reszta
+    short *splittedData = splitData(data, size, compressionRatio, &rest, &restBits);
+    int dataSize = *size;
+    frequency_t *freqArray = getFrequency(splittedData, size);
+    Output *codes = get_codes(freqArray, *size);
+    controlSums_t * controlSums = getControlSums(compressionRatio, freqArray, codes, *size, restBits);
+    compressFile(splittedData,dataSize,codes,*size,&rest, controlSums,compressionRatio,out);
+}
+
+
+void decompressMode(unsigned char *data,int compressionRatio,int *size,FILE *out){
+    int *controlSums;
+    controlSums = getCompressSums(data, size);
+    char rest2 = 0;
+    if (controlSums[2] != 0) {
+        rest2 = data[(*size)-1];
+        (*size)--; // jeżeli zostaje reszta, którą nie kompresujemy
+    }
+    int dictionarySize = 0;
+    Output *dictionary = getDictionary(data,size, compressionRatio, &dictionarySize);
+    char restToWrite = 0;
+    char *finalData = getBitsInChar(data, size, controlSums[1]);
+    decoder(dictionary, finalData, dictionarySize, compressionRatio,&rest2,controlSums[2],out);
+}
+
+void printHelp(){
+    printf("This is file compressor/decompressor\n"
+           "<program infile outfile [flags]>\n"
+           "possible flags:\n"
+           "--8, --12, --16 - choose version of algorithm to compress\n"
+           "--x, --c - choose mode of program (compress or decompress)\n"
+           "--v - show info about compress ratio\n"
+           "--help - show this help and quit program\n");
+}
+
 int main(int argc, char**argv) {
 
     int size = 0;
-
-//    UWAGA!!!
-//    WARTOŚCI DO ZMIENNYCH compressionRatio I dekompres MOŻESZ ZMIENIĆ W LINIJCE 123 I 124
-//    INICJALIZUJE JE TUTAJ, ŻEBY FLAGI (JEŻELI SĄ) NADPISAŁY TE WARTOŚCI, BO INACZEJ NIE SKOMPILUJE SIĘ
-    /*
     int compressionRatio;
-    int dekompres;
-
     int opt;
     int option_index = 0;
     int version_8 = 0;
@@ -30,7 +60,6 @@ int main(int argc, char**argv) {
     int info_needed = 0;
     int compress_mode = 0;
     int decompress_mode = 0;
-
     static struct option long_options[] = {
             {"8", no_argument, NULL, 1},
             {"12", no_argument, NULL, 2},
@@ -41,8 +70,9 @@ int main(int argc, char**argv) {
             {"x", no_argument, NULL, 7},
             {0, 0, 0, 0}
     };
-
+    int amountOfFlags = 0;
     while((opt = getopt_long(argc, argv, "", long_options, &option_index)) != -1) {
+        amountOfFlags++;
         switch(opt) {
             case 1:
                 version_8 = 1;
@@ -71,14 +101,21 @@ int main(int argc, char**argv) {
                 return 1;
         }
     }
+    unsigned char *data = readData(argv[1+amountOfFlags], &size);
+
+    if(data==NULL){
+        printHelp();
+        return 0;
+    }
+    FILE *out;
+    if(argc > 2){
+        out = fopen(argv[2+amountOfFlags],"wb");
+    }else{
+        printHelp();
+        return 0;
+    }
     if(help_needed) {
-        printf("This is file compressor/decompressor\n"
-               "<tutaj jakis sposob jak go odpalic>\n"
-               "possible flags:\n"
-               "--8, --12, --16 - choose version of algorithm to compress\n"
-               "--x, --c - choose mode of program (compress or decompress)\n"
-               "--v - show info about compress ratio\n"
-               "--help - show this help and quit program\n");
+        printHelp();
         return 0;
     }
     int versionsum = version_8 + version_12 + version_16;
@@ -110,48 +147,25 @@ int main(int argc, char**argv) {
     else if(version_16) {
         compressionRatio = 16;
     }
-
     if(decompress_mode) {
         dekompres = 1;
+        if(headerCheck(data,&size)==0){
+            fprintf(stderr,"infile is not compressed, try --help");
+            return 0;
+        }
+        decompressMode(data,compressionRatio,&size,out);
     }
     else if(compress_mode) {
         dekompres = 0;
+        compressMode(data,compressionRatio,&size,out);
     }
     else if(compress_mode + decompress_mode == 0) {
         //tutaj trzeba zrobic jakies czytanie z pliku i sprawdzanie czy jest tam kompres czy dekompres
-    }
-    */
-    int compressionRatio = 8;
-    int dekompres = 1;
-    if(dekompres){
-        unsigned char *data = readData("output.txt", &size);
-        int *controlSums;
-        if (headerCheck(data, &size)) {
-            controlSums = getCompressSums(data, &size);
+        if(headerCheck(data,&size)==0){
+            compressMode(data,compressionRatio,&size,out);
+        }else{
+            decompressMode(data,compressionRatio,&size,out);
         }
-        char rest2 = 0;
-        if (controlSums[2] != 0) {
-            rest2 = data[size-1];
-            size--; // jeżeli zostaje reszta, którą nie kompresujemy
-        }
-
-        int dictionarySize = 0;
-
-        Output *dictionary = getDictionary(data, &size, compressionRatio, &dictionarySize);
-        char restToWrite = 0;
-        char *finalData = getBitsInChar(data, &size, controlSums[1]);
-        decoder(dictionary, finalData, dictionarySize, compressionRatio,&rest2,controlSums[2]);
-        }
-    else{
-        unsigned char *data = readData("test.txt", &size);
-        char rest = 0; // reszta po podzieleniu na 12 lub 16
-        int restBits; // ilosc bitow ile zajmuje reszta
-        short *splittedData = splitData(data, &size, compressionRatio, &rest, &restBits);
-        int dataSize = size;
-        frequency_t *freqArray = getFrequency(splittedData, &size);
-        Output *codes = get_codes(freqArray, size);
-        controlSums_t * controlSums = getControlSums(compressionRatio, freqArray, codes, size, restBits);
-        compressFile(splittedData,dataSize,codes,size,&rest, controlSums,compressionRatio);
     }
 //    if(info_needed){
 //        //tutaj trzeba zrobic jakies wyswietlanie info o kompresji/dekompresji, np jakis procent
