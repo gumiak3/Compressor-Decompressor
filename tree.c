@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 typedef struct Node {
     short bits;
@@ -131,22 +132,20 @@ void code_creator(struct Output_tmp *codes_second, struct Output *codes, int n) 
             tmp = tmp/2;
             length++;
         }
-        length--;
         codes[i].bits = codes_second[i].bits;
 
-        char* new_str = malloc(length + 1);
+        codes[i].code = malloc(length);
         tmp = codes_second[i].code;
-        for(int j = length-1; j >= 0; j--) {
+        for(int j = length-2; j >= 0; j--) {
             if(tmp % 2 == 0) {
-                new_str[j] = '0';
+                codes[i].code[j] = '0';
             } else {
-                new_str[j] = '1';
+                codes[i].code[j] = '1';
             }
             tmp = tmp / 2;
         }
-        new_str[length] = '\0';
+        codes[i].code[--length] = '\0';
 
-        codes[i].code = new_str;
     }
 }
 
@@ -175,6 +174,12 @@ Output * get_codes( frequency_t  *freqArray, int n) {
         only_leaves(codes_first, codes_second, k);
 
         code_creator(codes_second, codes, n);
+
+        free(leafs);
+        free(nodes);
+        free(codes_first);
+        free(codes_second);
+
     }
     else{
         codes[0].bits = freqArray[0].bits;

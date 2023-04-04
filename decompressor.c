@@ -54,6 +54,16 @@ void writeToFile(short *bits, FILE *out, int compressionRatio, unsigned char *bu
     }
 }
 
+void freeTree(Node *root){
+    if(root->left != NULL){
+        freeTree(root->left);
+    }
+    if(root->right != NULL){
+        freeTree(root->right);
+    }
+    free(root);
+}
+
 void decoder(Output *codes, char *data, int n, int version, char *rest2, int restControl){
 
     FILE *out = fopen("../Compressor-Decompressor/testowy_output.txt","wb");
@@ -117,6 +127,8 @@ void decoder(Output *codes, char *data, int n, int version, char *rest2, int res
             write8Bits(rest2,out);
             break;
     }
+
+    freeTree(root);
 
 }
 
