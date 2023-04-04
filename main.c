@@ -52,6 +52,7 @@ int main(int argc, char**argv) {
     int size = 0;
     int compressionRatio;
     int opt;
+    int dekompres;
     int option_index = 0;
     int version_8 = 0;
     int version_12 = 0;
