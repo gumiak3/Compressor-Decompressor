@@ -54,6 +54,7 @@ void writeToFile(short *bits, FILE *out, int compressionRatio, unsigned char *bu
     }
 }
 
+
 void freeTree(Node *root){
     if(root->left != NULL){
         freeTree(root->left);
@@ -64,9 +65,8 @@ void freeTree(Node *root){
     free(root);
 }
 
-void decoder(Output *codes, char *data, int n, int version, char *rest2, int restControl){
+void decoder(Output *codes, char *data, int n, int version, char *rest2, int restControl,FILE *out){
 
-    FILE *out = fopen("../Compressor-Decompressor/testowy_output.txt","wb");
 
     Node *root = malloc(sizeof(Node));
     root->left = NULL;
@@ -99,8 +99,6 @@ void decoder(Output *codes, char *data, int n, int version, char *rest2, int res
         tmp->bits = codes[i].bits;
         tmp->is_leaf = true;
     }
-
-
     unsigned char buffor;
     int bufforIndex = 0;
     int length = strlen(data);
@@ -121,10 +119,11 @@ void decoder(Output *codes, char *data, int n, int version, char *rest2, int res
 
     switch(restControl){
         case 4:
-            buffor |= (*rest2 & 0x000F);
+            buffor |= ((*rest2>>4) & 0x000F);
+            write8Bits((short*)&buffor,out);
             break;
         case 8:
-            write8Bits(rest2,out);
+            write8Bits((short*)rest2,out);
             break;
     }
 

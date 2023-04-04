@@ -5,7 +5,7 @@
 #include <math.h>
 
 void removeItems(char *data, int *size, int amountToRemove){
-    memmove(data,data+amountToRemove,*size-amountToRemove);
+    memmove(data,data+amountToRemove,(*size)-amountToRemove);
     *size-=amountToRemove;
 }
 int headerCheck(char *data, int *size) {
@@ -122,7 +122,8 @@ Output * getDictionary(char *data, int *size, int compressionRatio, int *diction
             amountToRemove++;
         }
     }
-    removeItems(data,size,amountToRemove);
+    if((*dictionarySize) > 0)
+        removeItems(data,size,amountToRemove);
     return dictionary;
 
 }
