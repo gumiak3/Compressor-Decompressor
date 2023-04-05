@@ -80,16 +80,11 @@ void make_tree( frequency_t *freqArray, struct Node *leafs, struct Node *nodes, 
     *w = n;
 }
 
-void true_leafs(struct Output_tmp *codes_first, int k){
-    for(int i = 0; i < k; i++){
-        codes_first[i].is_leaf = true;
-    }
-}
-
 void dfs(struct Node *root, int tmp_code, struct Output_tmp *codes, int *index){
     codes[*(index)].code = tmp_code;
     if(root->left == NULL && root->right == NULL){
         codes[*(index)].bits = root->bits;
+        codes[*(index)].is_leaf = true;
     }
     else{
         codes[*(index)].is_leaf = false;
@@ -153,8 +148,6 @@ Output * get_codes( frequency_t  *freqArray, int n) {
         make_tree(freqArray, leafs, nodes, n, &k);
 
         struct Output_tmp *codes_first = malloc(sizeof(Output_tmp) * k);
-
-        true_leafs(codes_first, k);
 
         Node root = nodes[k - 1];
         int index = 0;
