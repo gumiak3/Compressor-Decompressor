@@ -55,16 +55,6 @@ void make_tree( frequency_t *freqArray, struct Node *leafs, struct Node *nodes, 
                 }
             }
         }
-        if(leafs[mini1].frequency > leafs[mini2].frequency){
-            int temp = mini1;
-            mini1 = mini2;
-            mini2 = temp;
-        }
-        if(leafs[mini1].frequency == leafs[mini2].frequency && mini1 > mini2){
-            int temp = mini1;
-            mini1 = mini2;
-            mini2 = temp;
-        }
 
         leafs[n].frequency = leafs[mini1].frequency + leafs[mini2].frequency;
         leafs[n].left = &leafs[mini1];
@@ -90,9 +80,9 @@ void make_tree( frequency_t *freqArray, struct Node *leafs, struct Node *nodes, 
     *w = n;
 }
 
-void false_leafs(struct Output_tmp *codes_first, int k){
+void true_leafs(struct Output_tmp *codes_first, int k){
     for(int i = 0; i < k; i++){
-        codes_first[i].is_leaf = false;
+        codes_first[i].is_leaf = true;
     }
 }
 
@@ -102,7 +92,7 @@ void dfs(struct Node *root, int tmp_code, struct Output_tmp *codes, int *index){
         codes[*(index)].bits = root->bits;
     }
     else{
-        codes[*(index)].is_leaf = true;
+        codes[*(index)].is_leaf = false;
     }
     (*index)++;
     if(root->right != NULL){
@@ -116,7 +106,7 @@ void dfs(struct Node *root, int tmp_code, struct Output_tmp *codes, int *index){
 void only_leaves(struct Output_tmp *codes_first, struct Output_tmp *codes_second, int k){
     int j = 0;
     for(int i = 0; i < k; i++){
-        if(codes_first[i].is_leaf == false){
+        if(codes_first[i].is_leaf == true){
             codes_second[j].bits = codes_first[i].bits;
             codes_second[j].code = codes_first[i].code;
             j++;
@@ -136,7 +126,7 @@ void code_creator(struct Output_tmp *codes_second, struct Output *codes, int n) 
 
         codes[i].code = malloc(length);
         tmp = codes_second[i].code;
-        for(int j = length-2; j >= 0; j--) {
+        for(int j = --length-1; j >= 0; j--) {
             if(tmp % 2 == 0) {
                 codes[i].code[j] = '0';
             } else {
@@ -144,7 +134,7 @@ void code_creator(struct Output_tmp *codes_second, struct Output *codes, int n) 
             }
             tmp = tmp / 2;
         }
-        codes[i].code[--length] = '\0';
+        codes[i].code[length] = '\0';
 
     }
 }
@@ -153,16 +143,18 @@ void code_creator(struct Output_tmp *codes_second, struct Output *codes, int n) 
 Output * get_codes( frequency_t  *freqArray, int n) {
 
     struct Output *codes = malloc(sizeof(Output) * n);
+
     if(n > 1){
         struct Node *leafs = malloc(sizeof(Node) * (n * 2));
         struct Node *nodes = malloc(sizeof(Node) * (n * 2));
+
         int k = n;
 
         make_tree(freqArray, leafs, nodes, n, &k);
 
         struct Output_tmp *codes_first = malloc(sizeof(Output_tmp) * k);
 
-        false_leafs(codes_first, k);
+        true_leafs(codes_first, k);
 
         Node root = nodes[k - 1];
         int index = 0;
@@ -183,9 +175,10 @@ Output * get_codes( frequency_t  *freqArray, int n) {
     }
     else{
         codes[0].bits = freqArray[0].bits;
-        codes[0].code = "0";
+        codes[0].code = malloc(2);
+        codes[0].code[0] = '0';
+        codes[0].code[1] = '\0';
     }
-
 
     return codes;
 }
