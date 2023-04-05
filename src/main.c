@@ -102,14 +102,17 @@ int main(int argc, char**argv) {
                 return 1;
         }
     }
+    if((argc-amountOfFlags) == 1){
+        printHelp();
+        return 0;
+    }
     unsigned char *data = readData(argv[1+amountOfFlags], &size);
-
     if(data==NULL){
         printHelp();
         return 0;
     }
     FILE *out;
-    if(argc > 2){
+    if((argc-amountOfFlags) > 2){
         out = fopen(argv[2+amountOfFlags],"wb");
     }else{
         printHelp();
