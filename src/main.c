@@ -10,11 +10,13 @@
 #include "stripCompressFile.h"
 #include "decompressor.h"
 #include <stdlib.h>
-void freeMemoryInCompressMode(short *splittedData,codes_t *codes,controlSums_t *controlSums){
+void freeMemoryInCompressMode(short *splittedData,codes_t *codes,int codesSize,controlSums_t *controlSums){
     free(splittedData);
-    // free codes
+    freeMemoryCodes(codes,codesSize);
     freeControlSums(controlSums);
 }
+
+
 void compressMode(unsigned char *data,int compressionRatio, int *size, FILE *out){
     char rest = 0; // reszta po podzieleniu na 12 lub 16
     int restBits; // ilosc bitow ile zajmuje reszta
@@ -24,7 +26,7 @@ void compressMode(unsigned char *data,int compressionRatio, int *size, FILE *out
     codes_t *codes = get_codes(freqArray, *size);
     controlSums_t * controlSums = getControlSums(compressionRatio, freqArray, codes, *size, restBits);
     compressFile(splittedData,dataSize,codes,*size,&rest, controlSums,compressionRatio,out);
-    freeMemoryInCompressMode(splittedData,codes,controlSums);
+    freeMemoryInCompressMode(splittedData,codes,dataSize,controlSums);
 }
 
 

@@ -176,4 +176,9 @@ codes_t * get_codes( frequency_t  *freqArray, int n) {
     return codes;
 }
 
-void freeMemoryCodes();
+void freeMemoryCodes(codes_t *codes, int size){
+    for(int i=0;i<size;i++){
+        free(codes[i].code);
+    }
+    free(codes);
+}
