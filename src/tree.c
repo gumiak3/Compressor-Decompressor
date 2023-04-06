@@ -69,7 +69,8 @@ void make_tree( frequency_t *freqArray, struct Node *leafs, struct Node *nodes, 
             }
         }
     }
-    nodes = realloc(nodes, sizeof(Node)*(n));
+//    nodes = realloc(nodes, sizeof(*nodes)*n);
+// not sure what this realloc did, but it've been causing a memory leaks of n size bites (so huge)
     for(int i = 0; i < n; i++){
         nodes[i].bits = leafs[i].bits;
         nodes[i].frequency = leafs[i].frequency;
@@ -109,7 +110,7 @@ void only_leaves(struct Output_tmp *codes_first, struct Output_tmp *codes_second
     }
 }
 
-void code_creator(struct Output_tmp *codes_second, struct Output *codes, int n) {
+void code_creator(struct Output_tmp *codes_second, struct codes_t *codes, int n) {
     for(int i = 0; i < n; i++) {
         int tmp = codes_second[i].code;
         int length = 0;
@@ -135,9 +136,9 @@ void code_creator(struct Output_tmp *codes_second, struct Output *codes, int n) 
 }
 
 
-Output * get_codes( frequency_t  *freqArray, int n) {
+codes_t * get_codes( frequency_t  *freqArray, int n) {
 
-    struct Output *codes = malloc(sizeof(Output) * n);
+    struct codes_t *codes = malloc(sizeof(codes_t) * n);
 
     if(n > 1){
         struct Node *leafs = malloc(sizeof(Node) * (n * 2));
@@ -172,6 +173,12 @@ Output * get_codes( frequency_t  *freqArray, int n) {
         codes[0].code[0] = '0';
         codes[0].code[1] = '\0';
     }
-
     return codes;
+}
+
+void freeMemoryCodes(codes_t *codes, int size){
+    for(int i=0;i<size;i++){
+        free(codes[i].code);
+    }
+    free(codes);
 }

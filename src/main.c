@@ -9,6 +9,12 @@
 #include "sumController.h"
 #include "stripCompressFile.h"
 #include "decompressor.h"
+#include <stdlib.h>
+void freeMemoryInCompressMode(short *splittedData,codes_t *codes,int codesSize,controlSums_t *controlSums){
+    free(splittedData);
+    freeMemoryCodes(codes,codesSize);
+    freeControlSums(controlSums);
+}
 
 void compressMode(unsigned char *data,int compressionRatio, int *size, FILE *out){
     char rest = 0; // reszta po podzieleniu na 12 lub 16
@@ -16,11 +22,16 @@ void compressMode(unsigned char *data,int compressionRatio, int *size, FILE *out
     short *splittedData = splitData(data, size, compressionRatio, &rest, &restBits);
     int dataSize = *size;
     frequency_t *freqArray = getFrequency(splittedData, size);
-    Output *codes = get_codes(freqArray, *size);
+    codes_t *codes = get_codes(freqArray, *size);
+    int codesSize = *size;
     controlSums_t * controlSums = getControlSums(compressionRatio, freqArray, codes, *size, restBits);
     compressFile(splittedData,dataSize,codes,*size,&rest, controlSums,compressionRatio,out);
+    freeMemoryInCompressMode(splittedData,codes,codesSize,controlSums);
 }
-
+void freeMemoryInDecompressMode(codes_t *dictionary,int dictionarySize,int *controlSums){
+    free(controlSums);
+    freeMemoryCodes(dictionary,dictionarySize);
+}
 
 void decompressMode(unsigned char *data,int *compressionRatio,int *size,FILE *out){
     int *controlSums;
@@ -32,10 +43,11 @@ void decompressMode(unsigned char *data,int *compressionRatio,int *size,FILE *ou
     }
     *compressionRatio = controlSums[0];
     int dictionarySize = 0;
-    Output *dictionary = getDictionary(data,size, *compressionRatio, &dictionarySize);
+    codes_t *dictionary = getDictionary(data,size, *compressionRatio, &dictionarySize);
     char restToWrite = 0;
     char *finalData = getBitsInChar(data, size, controlSums[1]);
     decoder(dictionary, finalData, dictionarySize, *compressionRatio,&rest2,controlSums[2],out);
+    freeMemoryInDecompressMode(dictionary,dictionarySize,controlSums);
 }
 
 void printHelp(){

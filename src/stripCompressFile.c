@@ -20,7 +20,7 @@ int headerCheck(char *data, int *size) {
 
 
 int *getCompressSums(char *data, int *size){
-    int *sums = malloc(sizeof(int) *3);
+    int *sums = malloc(sizeof(*sums) * 3);
     for(int i=0;i<3;i++){
         sums[i] = data[i];
     }
@@ -28,7 +28,6 @@ int *getCompressSums(char *data, int *size){
     return sums;
 }
 
-// getDictionary()
 void concatenate_strings(char* a, char* b, char* result) {
     strcpy(result, a);
     strcat(result, b);
@@ -42,17 +41,6 @@ int binary_to_decimal(char* binary) {
     }
     return decimal;
 }
-int binary_to_decimal_test(char *binary){
-    int length = strlen(binary);
-    int decimal = 0;
-    if(binary[0] == '1')
-        decimal = -128;
-    for (int i = 0; i < length-1; i++) {
-        int bit = binary[length - i - 1] - '0';
-        decimal += bit * pow(2, i);
-    }
-    return decimal;
-}
 
 int getDictionarySize(char *a, char *b){
     char * result = malloc(sizeof(char)*2);
@@ -61,11 +49,10 @@ int getDictionarySize(char *a, char *b){
     return size;
 }
 
-Output * getDictionary(char *data, int *size, int compressionRatio, int *dictionarySize){
+codes_t * getDictionary(char *data, int *size, int compressionRatio, int *dictionarySize){
     *dictionarySize = getDictionarySize(intToBinary(data[0],8), intToBinary(data[1],8));
     removeItems(data,size,2);
-    Output *dictionary = malloc(sizeof(*dictionary)* (*dictionarySize));
-    // posiadamy tablicę z elementami słownika oraz danymi z pliku oraz resztami
+    codes_t *dictionary = malloc(sizeof(*dictionary)* (*dictionarySize));
     int i=0;
     int bufforIndex = 0;
     int tempIndex = 0;
@@ -77,8 +64,6 @@ Output * getDictionary(char *data, int *size, int compressionRatio, int *diction
     char *buffor = malloc(sizeof(char)*16);
     int amountToRemove = 1;
     while(i < *dictionarySize){
-        // biore 8 bitow z data
-        // biore compressionRatio bitów
         while(tempIndex < 8 && codeIndex < codeLength){
             buffor[bufforIndex++] = temp[tempIndex++];
             codeIndex++;
@@ -113,19 +98,16 @@ Output * getDictionary(char *data, int *size, int compressionRatio, int *diction
             codeIndex = 0;
         }
         if(tempIndex == 8 && i < *dictionarySize){
+            free(temp);
             tempIndex = 0;
-            if (dataIndex > *size) {
-                printf("Error: dataIndex exceeds data size\n");
-                exit(1);
-            }
             temp = intToBinary(data[dataIndex++],8);
             amountToRemove++;
         }
     }
+    free(buffor);
     if((*dictionarySize) > 0)
         removeItems(data,size,amountToRemove);
     return dictionary;
-
 }
 
 char *getBitsInChar(char *data, int *size, int rest){
@@ -137,7 +119,7 @@ char *getBitsInChar(char *data, int *size, int rest){
     }
 
     int helper = numberOfBitsToRead;
-    char *output = malloc(sizeof(*output)*(numberOfBitsToRead * 2));
+    char *output = malloc(sizeof(*output)*(numberOfBitsToRead * 2)); // not freed
     int i=0;
     int d = 0;
     int index=0;
@@ -148,8 +130,10 @@ char *getBitsInChar(char *data, int *size, int rest){
             output[index++] = temp[tempIndex++];
             numberOfBitsToRead--;
         }
+        free(temp);
     }
     *size = helper;
     output[index] = '\0';
+    free(data);
     return output;
 }

@@ -36,10 +36,9 @@ char *intToBinary(int number, int length){
 }
 
 
-char * getCode(short bits, Output *codes, int size){
+char * getCode(short bits, codes_t *codes, int size){
     for(int i=0;i<size;i++){
         if(bits==codes[i].bits){
-//            *codeLength = strlen(codes[i].code);
             return codes[i].code;
         }
     }
@@ -82,8 +81,7 @@ void writeDictionarySizeToFile(int size,FILE *out){
     toWrite = ((toWrite & 0xFF00) >> 8) | ((toWrite & 0x00FF) << 8);
     fwrite(&toWrite,2,1,out);
 }
-void writeDictionary(Output *codes, int size, FILE *out,int compressionRatio){
-    printf("%d\n",size);
+void writeDictionary(codes_t *codes, int size, FILE *out,int compressionRatio){
     writeDictionarySizeToFile(size,out);
     char *code = toChar(codes[0].bits,compressionRatio);
     int codeIndex=0;
@@ -96,20 +94,22 @@ void writeDictionary(Output *codes, int size, FILE *out,int compressionRatio){
             buffor[(bufforIndex)++] = code[codeIndex++];
         }
         if(bufforIndex == 8){
-            // wpisujemy do pliku
             char toWrite = convertToBits(buffor, 8);
             fwrite(&toWrite,sizeof(char),1,out);
             bufforIndex = 0;
         }
         if(codeIndex == strlen(code)){
-            if(j%3==2)
+            if(j%3==2) {
                 i++;
+            }
             switch(j%3){
                 case 0:{
+                    free(code);
                     code = intToBinary(strlen(codes[i].code),8);
                     break;
                 }
                 case 1:{
+                    free(code);
                     code = codes[i].code;
                     break;
                 }
@@ -126,10 +126,10 @@ void writeDictionary(Output *codes, int size, FILE *out,int compressionRatio){
         for(int j=7;j>=bufforIndex;j--){
             buffor[j]='0';
         }
-        printf("RESZTA SLOWNIKA: %s %d\n",buffor, bufforIndex);
         char toWrite = convertToBits(buffor, 8);
         fwrite(&toWrite,sizeof(char),1,out);
     }
+    free(code);
 
 }
 int string_length(char *str) {
@@ -143,7 +143,7 @@ int string_length(char *str) {
     }
     return length;
 }
-void compressFile(short *splittedData,int dataSize, Output *codes, int codesSize, char *rest, controlSums_t *controlSums, int compressionRatio, FILE *out){
+void compressFile(short *splittedData,int dataSize, codes_t *codes, int codesSize, char *rest, controlSums_t *controlSums, int compressionRatio, FILE *out){
     writeHeadline("#LP#",out);
     writeControlSumToFile(controlSums,out);
     int codeLength=0;
@@ -152,20 +152,18 @@ void compressFile(short *splittedData,int dataSize, Output *codes, int codesSize
     char buffor[8] = {};
     int i=0;
     writeDictionary(codes,codesSize,out,compressionRatio);
-    char *code = getCode(splittedData[i++],codes,codesSize);
+    char *code = getCode(splittedData[i++],codes,codesSize); // not freed
     codeLength = string_length(code);
     while(i <= dataSize){
         while(bufforIndex < 8  && codeIndex < codeLength){
             buffor[bufforIndex++] = code[codeIndex++];
         }
         if(bufforIndex == 8){
-            // wpisujemy do pliku
             char toWrite = convertToBits(buffor, 8);
             fwrite(&toWrite,sizeof(char),1,out);
             bufforIndex = 0;
         }
         if(codeIndex == codeLength){
-            // bierzemy nowy kod
             code = getCode(splittedData[i++],codes,codesSize);
             codeLength = string_length(code);
             codeIndex = 0;
@@ -183,6 +181,5 @@ void compressFile(short *splittedData,int dataSize, Output *codes, int codesSize
     if(*rest != 0)
         fwrite(rest,sizeof(char),1,out);
     fclose(out);
-
 }
 
