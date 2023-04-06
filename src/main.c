@@ -43,7 +43,7 @@ void printHelp(){
            "<program infile outfile [flags]>\n"
            "possible flags:\n"
            "--8, --12, --16 - choose version of algorithm to compress\n"
-           "--x, --c - choose mode of program (compress or decompress)\n"
+           "--c, --x - choose mode of program (compress or decompress)\n"
            "--v - show info about compress ratio\n"
            "--help - show this help and quit program\n");
 }
