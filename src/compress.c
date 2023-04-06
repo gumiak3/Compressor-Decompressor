@@ -39,7 +39,6 @@ char *intToBinary(int number, int length){
 char * getCode(short bits, Output *codes, int size){
     for(int i=0;i<size;i++){
         if(bits==codes[i].bits){
-//            *codeLength = strlen(codes[i].code);
             return codes[i].code;
         }
     }
@@ -83,9 +82,8 @@ void writeDictionarySizeToFile(int size,FILE *out){
     fwrite(&toWrite,2,1,out);
 }
 void writeDictionary(Output *codes, int size, FILE *out,int compressionRatio){
-    printf("%d\n",size);
     writeDictionarySizeToFile(size,out);
-    char *code = toChar(codes[0].bits,compressionRatio);
+    char *code = toChar(codes[0].bits,compressionRatio); // freed
     int codeIndex=0;
     char buffor[8];
     int bufforIndex =0;
@@ -97,13 +95,16 @@ void writeDictionary(Output *codes, int size, FILE *out,int compressionRatio){
         }
         if(bufforIndex == 8){
             // wpisujemy do pliku
-            char toWrite = convertToBits(buffor, 8);
+            char toWrite = convertToBits(buffor, 8); // not sure about free
             fwrite(&toWrite,sizeof(char),1,out);
+            free(toWrite);
             bufforIndex = 0;
         }
         if(codeIndex == strlen(code)){
-            if(j%3==2)
+            free(code);
+            if(j%3==2) {
                 i++;
+            }
             switch(j%3){
                 case 0:{
                     code = intToBinary(strlen(codes[i].code),8);
@@ -126,7 +127,6 @@ void writeDictionary(Output *codes, int size, FILE *out,int compressionRatio){
         for(int j=7;j>=bufforIndex;j--){
             buffor[j]='0';
         }
-        printf("RESZTA SLOWNIKA: %s %d\n",buffor, bufforIndex);
         char toWrite = convertToBits(buffor, 8);
         fwrite(&toWrite,sizeof(char),1,out);
     }
