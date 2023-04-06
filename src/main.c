@@ -24,9 +24,10 @@ void compressMode(unsigned char *data,int compressionRatio, int *size, FILE *out
     int dataSize = *size;
     frequency_t *freqArray = getFrequency(splittedData, size);
     codes_t *codes = get_codes(freqArray, *size);
+    int codesSize = *size;
     controlSums_t * controlSums = getControlSums(compressionRatio, freqArray, codes, *size, restBits);
     compressFile(splittedData,dataSize,codes,*size,&rest, controlSums,compressionRatio,out);
-    freeMemoryInCompressMode(splittedData,codes,dataSize,controlSums);
+    freeMemoryInCompressMode(splittedData,codes,codesSize,controlSums);
 }
 
 
