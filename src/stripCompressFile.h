@@ -9,6 +9,7 @@
 #include "compress.h"
 int headerCheck(char *data, int *size);
 int *getCompressSums( char *data, int *size);
-Output *getDictionary(char *data, int *size, int compressionRatio,int *dictionarySize);
+codes_t *getDictionary(char *data, int *size, int compressionRatio,int *dictionarySize);
 char *getBitsInChar(char *data, int *size, int rest);
+void freeControlSums(controlSums_t *sums);
 #endif //PROJECT_JIMP2_STRIPCOMPRESSFILE_H

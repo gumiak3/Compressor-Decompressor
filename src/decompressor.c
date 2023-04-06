@@ -65,7 +65,7 @@ void freeTree(Node *root){
     free(root);
 }
 
-void decoder(Output *codes, char *data, int n, int version, char *rest2, int restControl,FILE *out){
+void decoder(codes_t *codes, char *data, int n, int version, char *rest2, int restControl,FILE *out){
 
 
     Node *root = malloc(sizeof(Node));

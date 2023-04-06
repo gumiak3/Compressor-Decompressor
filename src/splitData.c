@@ -79,5 +79,6 @@ short *splitData(unsigned char *data, int *size,int bitsToRead, unsigned char *r
             break;
         }
     }
+    free(data);
     return splittedData;
 }
