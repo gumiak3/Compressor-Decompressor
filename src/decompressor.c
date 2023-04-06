@@ -127,5 +127,6 @@ void decoder(codes_t *codes, char *data, int n, int version, char *rest2, int re
             break;
     }
     freeTree(root);
+    free(data);
 }
 

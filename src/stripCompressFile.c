@@ -134,5 +134,6 @@ char *getBitsInChar(char *data, int *size, int rest){
     }
     *size = helper;
     output[index] = '\0';
+    free(data);
     return output;
 }
