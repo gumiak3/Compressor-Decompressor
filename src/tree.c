@@ -161,7 +161,6 @@ codes_t * get_codes( frequency_t  *freqArray, int n) {
         code_creator(codes_second, codes, n);
 
         free(leafs);
-        free(nodes);
         free(codes_first);
         free(codes_second);
 
