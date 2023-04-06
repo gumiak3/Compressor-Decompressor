@@ -47,6 +47,7 @@ controlSums_t *getControlSums(int compressionRatio,frequency_t *frequency, codes
     sums[0].binaryRepresentation = toBinary(compressionRatio);
     sums[1].binaryRepresentation = toBinary(getControlSumOfCodeRest(frequency,codes,size,compressionRatio));
     sums[2].binaryRepresentation = toBinary(restBits);
+    free(frequency);
     return sums;
 }
 

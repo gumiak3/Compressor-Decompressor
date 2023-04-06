@@ -40,6 +40,7 @@ void decompressMode(unsigned char *data,int *compressionRatio,int *size,FILE *ou
     *compressionRatio = controlSums[0];
     int dictionarySize = 0;
     codes_t *dictionary = getDictionary(data,size, *compressionRatio, &dictionarySize);
+
     char restToWrite = 0;
     char *finalData = getBitsInChar(data, size, controlSums[1]);
     decoder(dictionary, finalData, dictionarySize, *compressionRatio,&rest2,controlSums[2],out);

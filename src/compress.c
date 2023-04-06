@@ -83,7 +83,7 @@ void writeDictionarySizeToFile(int size,FILE *out){
 }
 void writeDictionary(codes_t *codes, int size, FILE *out,int compressionRatio){
     writeDictionarySizeToFile(size,out);
-    char *code = toChar(codes[0].bits,compressionRatio); // freed
+    char *code = toChar(codes[0].bits,compressionRatio);
     int codeIndex=0;
     char buffor[8];
     int bufforIndex =0;
@@ -94,7 +94,7 @@ void writeDictionary(codes_t *codes, int size, FILE *out,int compressionRatio){
             buffor[(bufforIndex)++] = code[codeIndex++];
         }
         if(bufforIndex == 8){
-            char toWrite = convertToBits(buffor, 8); // not sure about free
+            char toWrite = convertToBits(buffor, 8);
             fwrite(&toWrite,sizeof(char),1,out);
             bufforIndex = 0;
         }
