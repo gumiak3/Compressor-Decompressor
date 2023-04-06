@@ -129,6 +129,7 @@ void writeDictionary(codes_t *codes, int size, FILE *out,int compressionRatio){
         char toWrite = convertToBits(buffor, 8);
         fwrite(&toWrite,sizeof(char),1,out);
     }
+    free(code);
 
 }
 int string_length(char *str) {
