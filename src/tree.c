@@ -172,7 +172,6 @@ codes_t * get_codes( frequency_t  *freqArray, int n) {
         codes[0].code[0] = '0';
         codes[0].code[1] = '\0';
     }
-    free(freqArray);
     return codes;
 }
 
