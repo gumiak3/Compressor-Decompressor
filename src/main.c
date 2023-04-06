@@ -22,7 +22,7 @@ void compressMode(unsigned char *data,int compressionRatio, int *size, FILE *out
 }
 
 
-void decompressMode(unsigned char *data,int compressionRatio,int *size,FILE *out){
+void decompressMode(unsigned char *data,int *compressionRatio,int *size,FILE *out){
     int *controlSums;
     controlSums = getCompressSums(data, size);
     char rest2 = 0;
@@ -30,11 +30,12 @@ void decompressMode(unsigned char *data,int compressionRatio,int *size,FILE *out
         rest2 = data[(*size)-1];
         (*size)--; // jeżeli zostaje reszta, którą nie kompresujemy
     }
+    *compressionRatio = controlSums[0];
     int dictionarySize = 0;
-    Output *dictionary = getDictionary(data,size, compressionRatio, &dictionarySize);
+    Output *dictionary = getDictionary(data,size, *compressionRatio, &dictionarySize);
     char restToWrite = 0;
     char *finalData = getBitsInChar(data, size, controlSums[1]);
-    decoder(dictionary, finalData, dictionarySize, compressionRatio,&rest2,controlSums[2],out);
+    decoder(dictionary, finalData, dictionarySize, *compressionRatio,&rest2,controlSums[2],out);
 }
 
 void printHelp(){
@@ -157,7 +158,8 @@ int main(int argc, char**argv) {
             fprintf(stderr,"infile is not compressed, try --help");
             return 0;
         }
-        decompressMode(data,compressionRatio,&size,out);
+	printf("%d\n",compressionRatio);
+        decompressMode(data,&compressionRatio,&size,out);
     }
     else if(compress_mode) {
         dekompres = 0;
@@ -168,7 +170,7 @@ int main(int argc, char**argv) {
         if(headerCheck(data,&size)==0){
             compressMode(data,compressionRatio,&size,out);
         }else{
-            decompressMode(data,compressionRatio,&size,out);
+            decompressMode(data,&compressionRatio,&size,out);
         }
     }
 //    if(info_needed){
