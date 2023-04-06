@@ -104,10 +104,12 @@ void writeDictionary(codes_t *codes, int size, FILE *out,int compressionRatio){
             }
             switch(j%3){
                 case 0:{
+                    free(code);
                     code = intToBinary(strlen(codes[i].code),8);
                     break;
                 }
                 case 1:{
+                    free(code);
                     code = codes[i].code;
                     break;
                 }

@@ -70,6 +70,7 @@ void make_tree( frequency_t *freqArray, struct Node *leafs, struct Node *nodes, 
         }
     }
 //    nodes = realloc(nodes, sizeof(*nodes)*n);
+// not sure what this realloc did, but it've been causing a memory leaks of n size bites (so huge)
     for(int i = 0; i < n; i++){
         nodes[i].bits = leafs[i].bits;
         nodes[i].frequency = leafs[i].frequency;
