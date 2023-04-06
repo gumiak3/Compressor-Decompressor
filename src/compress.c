@@ -99,7 +99,6 @@ void writeDictionary(codes_t *codes, int size, FILE *out,int compressionRatio){
             bufforIndex = 0;
         }
         if(codeIndex == strlen(code)){
-            free(code);
             if(j%3==2) {
                 i++;
             }
@@ -162,7 +161,6 @@ void compressFile(short *splittedData,int dataSize, codes_t *codes, int codesSiz
             bufforIndex = 0;
         }
         if(codeIndex == codeLength){
-            free(code); // code free
             code = getCode(splittedData[i++],codes,codesSize);
             codeLength = string_length(code);
             codeIndex = 0;
