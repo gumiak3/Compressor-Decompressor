@@ -126,8 +126,6 @@ void decoder(codes_t *codes, char *data, int n, int version, char *rest2, int re
             write8Bits((short*)rest2,out);
             break;
     }
-
     freeTree(root);
-
 }
 

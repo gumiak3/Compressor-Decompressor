@@ -15,8 +15,6 @@ void freeMemoryInCompressMode(short *splittedData,codes_t *codes,int codesSize,c
     freeMemoryCodes(codes,codesSize);
     freeControlSums(controlSums);
 }
-
-
 void compressMode(unsigned char *data,int compressionRatio, int *size, FILE *out){
     char rest = 0; // reszta po podzieleniu na 12 lub 16
     int restBits; // ilosc bitow ile zajmuje reszta
