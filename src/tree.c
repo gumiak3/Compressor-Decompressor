@@ -69,7 +69,7 @@ void make_tree( frequency_t *freqArray, struct Node *leafs, struct Node *nodes, 
             }
         }
     }
-    nodes = realloc(nodes, sizeof(*nodes)*n);
+//    nodes = realloc(nodes, sizeof(*nodes)*n);
     for(int i = 0; i < n; i++){
         nodes[i].bits = leafs[i].bits;
         nodes[i].frequency = leafs[i].frequency;
