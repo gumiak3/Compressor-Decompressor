@@ -186,7 +186,7 @@ int main(int argc, char**argv) {
         }
     }
 //    if(info_needed){
-//        //tutaj trzeba zrobic jakies wyswietlanie info o kompresji/dekompresji, np jakis procent
-//    }
+
+  //  }
     return 0;
 }
