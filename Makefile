@@ -24,16 +24,37 @@ test_formula:
 	echo "Decompressed file: $(file3)"
 	@$(MAKE) -s compare file1=$(file1) file2=$(file3)
 
-test1:	
+test1: program	
 	@./program $(test1_file1) $(test1_file2)
 	@./program $(test1_file2) $(test1_file3)	
 	@$(MAKE) -s test_formula file1=$(test1_file1) file2=$(test1_file2) file3=$(test1_file3)
 	
-test2:
+test2: program
 	@./program $(test2_file1) $(test2_file2)
 	@./program $(test2_file2) $(test2_file3)	
 	@$(MAKE) -s test_formula file1=$(test2_file1) file2=$(test2_file2) file3=$(test2_file3)
+
+test3: program
+	@./program $(test1_file1) $(test1_file2) --12
+	@./program $(test1_file2) $(test1_file3)	
+	@$(MAKE) -s test_formula file1=$(test1_file1) file2=$(test1_file2) file3=$(test1_file3)
 	
+test4: program
+	@./program $(test1_file1) $(test1_file2) --16
+	@./program $(test1_file2) $(test1_file3)	
+	@$(MAKE) -s test_formula file1=$(test1_file1) file2=$(test1_file2) file3=$(test1_file3)
+
+test5: program
+	@./program $(test2_file1) $(test2_file2) --12
+	@./program $(test2_file2) $(test2_file3)	
+	@$(MAKE) -s test_formula file1=$(test2_file1) file2=$(test2_file2) file3=$(test2_file3)
+
+test6: program
+	@./program $(test2_file1) $(test2_file2) --16
+	@./program $(test2_file2) $(test2_file3)	
+	@$(MAKE) -s test_formula file1=$(test2_file1) file2=$(test2_file2) file3=$(test2_file3)
+
+
 
 compare:
 	echo "Checking: $(file1) $(file2)"
