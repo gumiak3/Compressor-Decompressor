@@ -7,7 +7,7 @@ program: $(OBJ)
 
 
 clean:
-	rm program
+	rm program src/*.o
 
 test1_file1 = test/pan_tadeusz.txt
 test1_file2 = test/pan_tadeusz_compressed.txt
