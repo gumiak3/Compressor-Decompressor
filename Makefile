@@ -54,12 +54,15 @@ test6: program
 	@./program $(test2_file2) $(test2_file3)	
 	@$(MAKE) -s test_formula file1=$(test2_file1) file2=$(test2_file2) file3=$(test2_file3)
 
+test_failed:
+	@$(MAKE) -s compare file1=Makefile file2=program
+
 
 
 compare:
 	echo "Checking: $(file1) $(file2)"
 	@if cmp -s $(file1) $(file2); then \
-		echo "files are the same"; \
+		echo "\033[1m\033[38;2;174;243;89mfiles are the same\033[0m"; \
 	else \
-		echo "files are different"; \
+		echo "\033[1m\033[38;2;255;87;51mfiles are different\033[0m"; \
 	fi
