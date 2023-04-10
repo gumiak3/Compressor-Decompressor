@@ -48,8 +48,7 @@ int getDictionarySize(char *a, char *b){
     int size = binary_to_decimal(result);
     return size;
 }
-
-codes_t * getDictionary(char *data, int *size, int compressionRatio, int *dictionarySize){
+codes_t * getDictionary(char *data, int *size, int compressionRatio, int *dictionarySize, int extraInfo){
     *dictionarySize = getDictionarySize(intToBinary(data[0],8), intToBinary(data[1],8));
     removeItems(data,size,2);
     codes_t *dictionary = malloc(sizeof(*dictionary)* (*dictionarySize));
@@ -107,6 +106,9 @@ codes_t * getDictionary(char *data, int *size, int compressionRatio, int *dictio
     free(buffor);
     if((*dictionarySize) > 0)
         removeItems(data,size,amountToRemove);
+    if(extraInfo){
+        printExtraInfo(dictionary,*dictionarySize);
+    }
     return dictionary;
 }
 

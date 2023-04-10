@@ -33,7 +33,7 @@ void freeMemoryInDecompressMode(codes_t *dictionary,int dictionarySize,int *cont
     freeMemoryCodes(dictionary,dictionarySize);
 }
 
-void decompressMode(unsigned char *data,int *compressionRatio,int *size,FILE *out){
+void decompressMode(unsigned char *data,int *compressionRatio,int *size,FILE *out, int extraInfo){
     int *controlSums;
     controlSums = getCompressSums(data, size);
     char rest2 = 0;
@@ -43,7 +43,7 @@ void decompressMode(unsigned char *data,int *compressionRatio,int *size,FILE *ou
     }
     *compressionRatio = controlSums[0];
     int dictionarySize = 0;
-    codes_t *dictionary = getDictionary(data,size, *compressionRatio, &dictionarySize);
+    codes_t *dictionary = getDictionary(data,size, *compressionRatio, &dictionarySize,extraInfo);
     char restToWrite = 0;
     char *finalData = getBitsInChar(data, size, controlSums[1]);
     decoder(dictionary, finalData, dictionarySize, *compressionRatio,&rest2,controlSums[2],out);
@@ -171,7 +171,7 @@ int main(int argc, char**argv) {
             return 0;
         }
 	printf("%d\n",compressionRatio);
-        decompressMode(data,&compressionRatio,&size,out);
+        decompressMode(data,&compressionRatio,&size,out,info_needed);
     }
     else if(compress_mode) {
         dekompres = 0;
@@ -181,7 +181,7 @@ int main(int argc, char**argv) {
         if(headerCheck(data,&size)==0){
             compressMode(data,compressionRatio,&size,out,info_needed);
         }else{
-            decompressMode(data,&compressionRatio,&size,out);
+            decompressMode(data,&compressionRatio,&size,out,info_needed);
         }
     }
     return 0;
