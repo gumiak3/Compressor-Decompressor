@@ -33,7 +33,17 @@ void freeMemoryInDecompressMode(codes_t *dictionary,int dictionarySize,int *cont
     freeMemoryCodes(dictionary,dictionarySize);
 }
 
-void decompressMode(unsigned char *data,int *compressionRatio,int *size,FILE *out, int extraInfo){
+int checkValidation(int sumControl,char *data,int size,char rest){
+    for(int i=0;i<size;i++){
+        sumControl^=data[i];
+    }
+    if(rest !=0){
+        sumControl^=rest;
+    }
+    return sumControl;
+}
+
+int decompressMode(unsigned char *data,int *compressionRatio,int *size,FILE *out, int extraInfo){
     int *controlSums;
     controlSums = getCompressSums(data, size);
     char rest2 = 0;
@@ -45,6 +55,10 @@ void decompressMode(unsigned char *data,int *compressionRatio,int *size,FILE *ou
     int dictionarySize = 0;
     codes_t *dictionary = getDictionary(data,size, *compressionRatio, &dictionarySize,extraInfo);
     char restToWrite = 0;
+    if(checkValidation(controlSums[3],data,*size,rest2) != 0){
+        fprintf(stderr,"File is corrupted!");
+        return 1;
+    }
     char *finalData = getBitsInChar(data, size, controlSums[1]);
     decoder(dictionary, finalData, dictionarySize, *compressionRatio,&rest2,controlSums[2],out);
     freeMemoryInDecompressMode(dictionary,dictionarySize,controlSums);

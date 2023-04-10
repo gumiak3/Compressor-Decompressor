@@ -20,11 +20,11 @@ int headerCheck(char *data, int *size) {
 
 
 int *getCompressSums(char *data, int *size){
-    int *sums = malloc(sizeof(*sums) * 3);
-    for(int i=0;i<3;i++){
+    int *sums = malloc(sizeof(*sums) * 4);
+    for(int i=0;i<4;i++){
         sums[i] = data[i];
     }
-    removeItems(data,size,3);
+    removeItems(data,size,4);
     return sums;
 }
 
