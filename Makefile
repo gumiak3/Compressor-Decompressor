@@ -17,12 +17,15 @@ test2_file1 = test/test2.jpeg
 test2_file2 = test/test2_compressed.jpeg
 test2_file3 = test/test2_decompressed.jpeg
 
+
 test_formula:
 	echo "Testing:"
 	echo "infile: $(file1)"
 	echo "Compressed file: $(file2)"
 	echo "Decompressed file: $(file3)"
+	echo "Used flags: $(flags)"
 	@$(MAKE) -s compare file1=$(file1) file2=$(file3)
+
 
 test1: program	
 	@./program $(test1_file1) $(test1_file2)
@@ -30,29 +33,29 @@ test1: program
 	@$(MAKE) -s test_formula file1=$(test1_file1) file2=$(test1_file2) file3=$(test1_file3)
 	
 test2: program
+	@./program $(test1_file1) $(test1_file2) --12
+	@./program $(test1_file2) $(test1_file3)	
+	@$(MAKE) -s test_formula file1=$(test1_file1) file2=$(test1_file2) file3=$(test1_file3) flags=--12
+
+test3: program
+	@./program $(test1_file1) $(test1_file2) --16
+	@./program $(test1_file2) $(test1_file3)	
+	@$(MAKE) -s test_formula file1=$(test1_file1) file2=$(test1_file2) file3=$(test1_file3) flags=--16
+	
+test4: program
 	@./program $(test2_file1) $(test2_file2)
 	@./program $(test2_file2) $(test2_file3)	
 	@$(MAKE) -s test_formula file1=$(test2_file1) file2=$(test2_file2) file3=$(test2_file3)
 
-test3: program
-	@./program $(test1_file1) $(test1_file2) --12
-	@./program $(test1_file2) $(test1_file3)	
-	@$(MAKE) -s test_formula file1=$(test1_file1) file2=$(test1_file2) file3=$(test1_file3)
-	
-test4: program
-	@./program $(test1_file1) $(test1_file2) --16
-	@./program $(test1_file2) $(test1_file3)	
-	@$(MAKE) -s test_formula file1=$(test1_file1) file2=$(test1_file2) file3=$(test1_file3)
-
 test5: program
 	@./program $(test2_file1) $(test2_file2) --12
 	@./program $(test2_file2) $(test2_file3)	
-	@$(MAKE) -s test_formula file1=$(test2_file1) file2=$(test2_file2) file3=$(test2_file3)
+	@$(MAKE) -s test_formula file1=$(test2_file1) file2=$(test2_file2) file3=$(test2_file3) flags=--12
 
 test6: program
 	@./program $(test2_file1) $(test2_file2) --16
 	@./program $(test2_file2) $(test2_file3)	
-	@$(MAKE) -s test_formula file1=$(test2_file1) file2=$(test2_file2) file3=$(test2_file3)
+	@$(MAKE) -s test_formula file1=$(test2_file1) file2=$(test2_file2) file3=$(test2_file3) flags=--16
 
 test_failed:
 	@$(MAKE) -s compare file1=Makefile file2=program
