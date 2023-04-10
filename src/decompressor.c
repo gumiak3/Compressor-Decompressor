@@ -6,12 +6,12 @@
 #include <stdint-gcc.h>
 #include "decompressor.h"
 
-typedef struct Node{
+typedef struct Node_decompress{
     short bits;
-    struct Node *left;
-    struct Node *right;
+    struct Node_decompress *left;
+    struct Node_decompress *right;
     bool is_leaf;
-} Node;
+} Node_decompress;
 
 void write8Bits(short *bits, FILE *out){
     fwrite(bits,1,1,out);
@@ -55,7 +55,7 @@ void writeToFile(short *bits, FILE *out, int compressionRatio, unsigned char *bu
 }
 
 
-void freeTree(Node *root){
+void freeTree(Node_decompress *root){
     if(root->left != NULL){
         freeTree(root->left);
     }
@@ -68,18 +68,18 @@ void freeTree(Node *root){
 void decoder(codes_t *codes, char *data, int n, int version, char *rest2, int restControl,FILE *out){
 
 
-    Node *root = malloc(sizeof(Node));
+    Node_decompress *root = malloc(sizeof(Node_decompress));
     root->left = NULL;
     root->right = NULL;
     root->is_leaf = false;
 
     for(int i = 0; i < n; i++){
-        Node *tmp = root;
+        Node_decompress *tmp = root;
         int code_length = strlen(codes[i].code);
         for(int j = 0; j < code_length; j++){
             if(codes[i].code[j] == '0'){
                 if(tmp->left == NULL){
-                    tmp->left = malloc(sizeof(Node));
+                    tmp->left = malloc(sizeof(Node_decompress));
                     tmp->left->left = NULL;
                     tmp->left->right = NULL;
                     tmp->left->is_leaf = false;
@@ -88,7 +88,7 @@ void decoder(codes_t *codes, char *data, int n, int version, char *rest2, int re
             }
             else{
                 if(tmp->right == NULL){
-                    tmp->right = malloc(sizeof(Node));
+                    tmp->right = malloc(sizeof(Node_decompress));
                     tmp->right->left = NULL;
                     tmp->right->right = NULL;
                     tmp->right->is_leaf = false;
@@ -102,7 +102,7 @@ void decoder(codes_t *codes, char *data, int n, int version, char *rest2, int re
     unsigned char buffor;
     int bufforIndex = 0;
     int length = strlen(data);
-    Node *current = root;
+    Node_decompress *current = root;
 
     for(int i = 0; i < length; i++){
         if(data[i] == '0'){

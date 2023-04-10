@@ -5,13 +5,13 @@
 #include <stdbool.h>
 #include <string.h>
 
-typedef struct Node {
+typedef struct Node_compress {
     short bits;
     int frequency;
-    struct Node* left;
-    struct Node* right;
+    struct Node_compress* left;
+    struct Node_compress* right;
     bool been;
-} Node;
+} Node_compress;
 
 typedef struct Output_tmp {
     short bits;
@@ -19,7 +19,7 @@ typedef struct Output_tmp {
     bool is_leaf;
 } Output_tmp;
 
-void make_tree( frequency_t *freqArray, struct Node *leafs, struct Node *nodes, int n, int *w){
+void make_tree( frequency_t *freqArray, struct Node_compress *leafs, struct Node_compress *nodes, int n, int *w){
     for(int i = 0; i < n; i++){
         leafs[i].bits = freqArray[i].bits;
         leafs[i].frequency = freqArray[i].frequency;
@@ -81,7 +81,7 @@ void make_tree( frequency_t *freqArray, struct Node *leafs, struct Node *nodes, 
     *w = n;
 }
 
-void dfs(struct Node *root, int tmp_code, struct Output_tmp *codes, int *index){
+void dfs(struct Node_compress *root, int tmp_code, struct Output_tmp *codes, int *index){
     codes[*(index)].code = tmp_code;
     if(root->left == NULL && root->right == NULL){
         codes[*(index)].bits = root->bits;
@@ -141,8 +141,8 @@ codes_t * get_codes( frequency_t  *freqArray, int n) {
     struct codes_t *codes = malloc(sizeof(codes_t) * n);
 
     if(n > 1){
-        struct Node *leafs = malloc(sizeof(Node) * (n * 2));
-        struct Node *nodes = malloc(sizeof(Node) * (n * 2));
+        struct Node_compress *leafs = malloc(sizeof(Node_compress) * (n * 2));
+        struct Node_compress *nodes = malloc(sizeof(Node_compress) * (n * 2));
 
         int k = n;
 
@@ -150,7 +150,7 @@ codes_t * get_codes( frequency_t  *freqArray, int n) {
 
         struct Output_tmp *codes_first = malloc(sizeof(Output_tmp) * k);
 
-        Node root = nodes[k - 1];
+        Node_compress root = nodes[k - 1];
         int index = 0;
 
         dfs(&root, 1, codes_first, &index);
