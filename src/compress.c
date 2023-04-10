@@ -63,6 +63,8 @@ void writeControlSumToFile(controlSums_t * controlSums, FILE *out){
         char toWrite = convertToBits(buffor2,8);
         fwrite(&toWrite,sizeof(char),1,out);
     }
+    char toWrite = 0;
+    fwrite(&toWrite,sizeof(char),1,out);
 }
 
 char* toChar(short bits, int length){
@@ -154,12 +156,14 @@ void compressFile(short *splittedData,int dataSize, codes_t *codes, int codesSiz
     writeDictionary(codes,codesSize,out,compressionRatio);
     char *code = getCode(splittedData[i++],codes,codesSize); // not freed
     codeLength = string_length(code);
+    char control = 0;
     while(i <= dataSize){
         while(bufforIndex < 8  && codeIndex < codeLength){
             buffor[bufforIndex++] = code[codeIndex++];
         }
         if(bufforIndex == 8){
             char toWrite = convertToBits(buffor, 8);
+            control^=toWrite;
             fwrite(&toWrite,sizeof(char),1,out);
             bufforIndex = 0;
         }
@@ -175,11 +179,16 @@ void compressFile(short *splittedData,int dataSize, codes_t *codes, int codesSiz
             buffor[j]='0';
         }
         char toWrite = convertToBits(buffor, 8);
+        control^=toWrite;
         fwrite(&toWrite,sizeof(char),1,out);
     }
     // nastepna reszta ktora dostalismy ze splitowania danych
-    if(*rest != 0)
+    if(*rest != 0){
+        control^=*rest;
         fwrite(rest,sizeof(char),1,out);
+    }
+    fseek(out,7,SEEK_SET);
+    fwrite(&control,sizeof(char),1,out);
     fclose(out);
 }
 

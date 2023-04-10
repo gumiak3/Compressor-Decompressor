@@ -55,7 +55,6 @@ int decompressMode(unsigned char *data,int *compressionRatio,int *size,FILE *out
     int dictionarySize = 0;
     codes_t *dictionary = getDictionary(data,size, *compressionRatio, &dictionarySize,extraInfo);
     char restToWrite = 0;
-
     if(checkValidation(controlSums[3],data,*size,rest2) != 0){
         fprintf(stderr,"File is corrupted!");
         return 1;
