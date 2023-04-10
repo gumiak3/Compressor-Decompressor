@@ -6,6 +6,6 @@ typedef struct codes_t {
     char *code;
 } codes_t;
 
-codes_t * get_codes(frequency_t  *freqArray, int n);
+codes_t * get_codes(frequency_t  *freqArray, int n,int extraInfo);
 void freeMemoryCodes(codes_t *codes, int size);
 #endif //COMPRESSOR_DECOMPRESSOR_TREE_H

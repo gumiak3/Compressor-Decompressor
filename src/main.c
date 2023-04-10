@@ -16,13 +16,13 @@ void freeMemoryInCompressMode(short *splittedData,codes_t *codes,int codesSize,c
     freeControlSums(controlSums);
 }
 
-void compressMode(unsigned char *data,int compressionRatio, int *size, FILE *out){
+void compressMode(unsigned char *data,int compressionRatio, int *size, FILE *out, int extraInfo){
     char rest = 0; // reszta po podzieleniu na 12 lub 16
     int restBits; // ilosc bitow ile zajmuje reszta
     short *splittedData = splitData(data, size, compressionRatio, &rest, &restBits);
     int dataSize = *size;
     frequency_t *freqArray = getFrequency(splittedData, size);
-    codes_t *codes = get_codes(freqArray, *size);
+    codes_t *codes = get_codes(freqArray, *size,extraInfo);
     int codesSize = *size;
     controlSums_t * controlSums = getControlSums(compressionRatio, freqArray, codes, *size, restBits);
     compressFile(splittedData,dataSize,codes,*size,&rest, controlSums,compressionRatio,out);
@@ -175,18 +175,14 @@ int main(int argc, char**argv) {
     }
     else if(compress_mode) {
         dekompres = 0;
-        compressMode(data,compressionRatio,&size,out);
+        compressMode(data,compressionRatio,&size,out,info_needed);
     }
     else if(compress_mode + decompress_mode == 0) {
-        //tutaj trzeba zrobic jakies czytanie z pliku i sprawdzanie czy jest tam kompres czy dekompres
         if(headerCheck(data,&size)==0){
-            compressMode(data,compressionRatio,&size,out);
+            compressMode(data,compressionRatio,&size,out,info_needed);
         }else{
             decompressMode(data,&compressionRatio,&size,out);
         }
     }
-//    if(info_needed){
-
-  //  }
     return 0;
 }

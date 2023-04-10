@@ -135,8 +135,14 @@ void code_creator(struct Output_tmp *codes_second, struct codes_t *codes, int n)
     }
 }
 
+void  printExtraInfo(codes_t *dictionary, int size){
+    for(int i=0;i<size;i++){
+        printf("%d -> %s\n",dictionary[i].bits, dictionary[i].code);
+    }
+    printf("Dictionary's size: %d\n",size);
+}
 
-codes_t * get_codes( frequency_t  *freqArray, int n) {
+codes_t * get_codes( frequency_t  *freqArray, int n, int extraInfo) {
 
     struct codes_t *codes = malloc(sizeof(codes_t) * n);
 
@@ -160,6 +166,8 @@ codes_t * get_codes( frequency_t  *freqArray, int n) {
         only_leaves(codes_first, codes_second, k);
 
         code_creator(codes_second, codes, n);
+        if(extraInfo)
+            printExtraInfo(codes,n);
 
         free(leafs);
         free(nodes);
